@@ -35,7 +35,7 @@ class CardReader:
 
     def start(self):
         self.thread_running = True
-        threading.Thread(target=self.filter_frame).start()
+        threading.Thread(target=self.filter_frame,daemon=True).start()
 
     def stop(self):
         self.thread_running = False

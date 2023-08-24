@@ -67,7 +67,7 @@ class CardFinder:
     def start(self):
         self.thread_started = True
         print('starting match thread')
-        threading.Thread(target=self.match_image).start()
+        threading.Thread(target=self.match_image,daemon=True).start()
 
     def stop(self):
         self.thread_started = False
