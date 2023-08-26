@@ -34,8 +34,7 @@ def automatic_brightness_and_contrast(image, clip_hist_percent):
     hist_size = len(hist)
 
     # Calculate cumulative distribution from the histogram
-    accumulator = []
-    accumulator.append(float(hist[0]))
+    accumulator = [float(hist[0])]
     for index in range(1, hist_size):
         accumulator.append(accumulator[index - 1] + float(hist[index]))
 
@@ -55,7 +54,11 @@ def automatic_brightness_and_contrast(image, clip_hist_percent):
         maximum_gray -= 1
 
     # Calculate alpha and beta values
-    alpha = 255 / (maximum_gray - minimum_gray)
+    if maximum_gray - minimum_gray != 0:
+        alpha = 255 / (maximum_gray - minimum_gray)
+    else:
+        alpha = 255
+
     beta = -minimum_gray * alpha
 
     '''
@@ -169,12 +172,12 @@ def crop_white(f_image, f_threshold):
     th = f_image.copy()
 
     y0 = 0
-    y1 = 0
+    y1 = 10
     x0 = 0
-    x1 = 0
+    x1 = 10
 
     bbox = np.where(th < f_threshold)
-    if bbox:
+    if bbox[0].any() or bbox[1].any():
         y0 = bbox[0].min()
         y1 = bbox[0].max()
         x0 = bbox[1].min()
