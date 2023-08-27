@@ -107,7 +107,12 @@ def resize_with_aspect_ratio(image, width=None, height=None, inter=cv2.INTER_ARE
         r = width / float(w)
         dim = (width, int(h * r))
 
-    return cv2.resize(image, dim, interpolation=inter)
+    if len(image.shape) < 3:
+        formatted = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    else:
+        formatted = image
+
+    return cv2.resize(formatted, dim, interpolation=inter)
 
 
 def dilate(image, val):
@@ -172,9 +177,9 @@ def crop_white(f_image, f_threshold):
     th = f_image.copy()
 
     y0 = 0
-    y1 = 10
+    y1 = 0
     x0 = 0
-    x1 = 10
+    x1 = 0
 
     bbox = np.where(th < f_threshold)
     if bbox[0].any() or bbox[1].any():

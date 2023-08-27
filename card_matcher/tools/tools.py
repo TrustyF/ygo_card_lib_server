@@ -1,12 +1,11 @@
-import os
 import json
 
-from card_matcher.constants import MAIN_DIR
+from constants import MAIN_DIR
 
 
 def load_user_settings():
     print('loading user settings')
-    with open(f'{MAIN_DIR}/settings/user_settings.json', 'r') as infile:
+    with open(f'{MAIN_DIR}/card_matcher/settings/user_settings.json', 'r') as infile:
         settings = json.load(infile)
     if settings is None:
         return {}

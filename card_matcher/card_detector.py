@@ -1,11 +1,7 @@
 import cv2
-import threading
-import os
 import numpy as np
-from PIL import Image
 
 from card_matcher.tools import filters, tools
-from card_matcher.constants import MAIN_DIR
 from card_matcher.webcam import Webcam
 
 
@@ -105,26 +101,18 @@ class CardDetector:
                 cropped_frame = cv2.rotate(cropped_frame, cv2.ROTATE_90_CLOCKWISE)
                 self.cropped_frame = filters.resize_with_aspect_ratio(cropped_frame, width=168, height=249)
 
-            if self.cropped_frame is not None:
-                self.final_filter_frame = filters.crop_white(self.cropped_frame, self.settings['white_cut'])
+                if self.cropped_frame is not None:
+                    self.final_filter_frame = filters.crop_white(self.cropped_frame, self.settings['white_cut'])
+
+            else:
+                self.cropped_frame = for_find_cont
+                self.final_filter_frame = for_find_cont
 
     def get_detected_card(self):
         self.detect_card()
         return self.final_filter_frame
 
     def get_filter_feed(self):
-
-        def resize_with_aspect_ratio(image, width):
-            aspect_ratio = image.shape[1] / image.shape[0]
-            new_height = int(width / aspect_ratio)
-
-            if len(image.shape) < 3:
-                formatted = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)
-            else:
-                formatted = image
-
-            resized_image = cv2.resize(formatted, (width, new_height))
-            return resized_image
 
         while True:
             self.detect_card()
@@ -133,13 +121,14 @@ class CardDetector:
                 return
 
             stacked = np.vstack((
-                resize_with_aspect_ratio(self.gray_frame, 100),
-                resize_with_aspect_ratio(self.canny_frame, 100),
-                resize_with_aspect_ratio(self.cropped_frame, 100),
-                resize_with_aspect_ratio(self.final_filter_frame, 100),
+                filters.resize_with_aspect_ratio(self.gray_frame, width=200, height=200),
+                filters.resize_with_aspect_ratio(self.canny_frame, width=200, height=200),
+                filters.resize_with_aspect_ratio(self.cropped_frame, width=200, height=200),
+                filters.resize_with_aspect_ratio(self.final_filter_frame, width=200, height=200),
             ))
+            formatted = cv2.cvtColor(stacked, cv2.COLOR_BGR2RGB)
 
-            ret, buffer = cv2.imencode('.jpg', stacked)
+            ret, buffer = cv2.imencode('.jpg', formatted)
             frame = buffer.tobytes()
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')

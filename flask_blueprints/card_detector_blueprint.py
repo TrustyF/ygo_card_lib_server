@@ -2,14 +2,10 @@ from flask import Blueprint, request, Response
 import time
 import cv2
 
-from card_matcher.webcam import Webcam
-from card_matcher.card_detector import CardDetector
 from card_matcher.tools import tools
+from main import camera, detector
 
 card_detector_bp = Blueprint('card_detector', __name__)
-
-camera = Webcam()
-detector = CardDetector(camera)
 
 
 @card_detector_bp.route("/get_webcam_feed", methods=["GET"])
