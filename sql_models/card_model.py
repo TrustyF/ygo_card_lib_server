@@ -1,37 +1,44 @@
-from sqlalchemy import Column, Integer, String, ForeignKey
-from sqlalchemy.orm import Relationship
+from main import db
 
 from sql_models.base_model import TimeStampedModel
 
 
 class Card(TimeStampedModel):
-    __tablename__ = "cards"
+    __tablename__ = "Cards"
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(80), nullable=False)
-    type = Column(String(80), nullable=False)
-    desc = Column(String(255), nullable=False)
-    race = Column(String(80), nullable=False)
-    archetype = Column(String(80), nullable=False)
+    card_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    card_name = db.Column(db.String(80), nullable=False)
+    card_type = db.Column(db.String(80), nullable=False)
+    card_desc = db.Column(db.String(255), nullable=False)
+    card_race = db.Column(db.String(80), nullable=False)
+    card_archetype = db.Column(db.String(80), nullable=False)
 
-    set = Relationship("Set", back_populates="card")
+    card_price = db.Column(db.Float, nullable=True)
+    card_image_hash = db.Column(db.Integer, nullable=True)
 
-    def __repr__(self):
-        return f"{self.__class__.__name__},name: {self.name}, {self.type}"
-
-
-class Set(TimeStampedModel):
-    __tablename__ = "sets"
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(80), nullable=False)
-    code = Column(String(80), nullable=False)
-    rarity = Column(String(80), nullable=False)
-    rarity_code = Column(String(80), nullable=False)
-    price = Column(String(80), nullable=False)
-
-    card_id = Column(Integer, ForeignKey("cards.id", ondelete="CASCADE"), nullable=False, index=True)
-    card = Relationship("Card", back_populates="set")
+    set_id = db.Column(db.Integer, db.ForeignKey('CardSets.set_id'), nullable=False)
+    set = db.Relationship("CardSet", back_populates="cards")
 
     def __repr__(self):
-        return f"{self.__class__.__name__},name: {self.name}, {self.type}"
+        return f"{self.__class__.__name__},name: {self.card_name}, {self.card_type}"
+
+
+class CardSet(TimeStampedModel):
+    __tablename__ = "CardSets"
+
+    set_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    set_name = db.Column(db.String(80), nullable=False)
+    set_code = db.Column(db.String(80), nullable=False)
+    set_rarity = db.Column(db.String(80), nullable=True)
+    set_rarity_code = db.Column(db.String(80), nullable=True)
+    set_price = db.Column(db.String(80), nullable=True)
+    set_number_cards = db.Column(db.Integer, nullable=True)
+
+    cards = db.Relationship("Card", back_populates="set")
+
+    __table_args__ = (
+        db.UniqueConstraint('set_name', 'set_code', name="name_code_combo"),
+    )
+
+    def __repr__(self):
+        return f"{self.__class__.__name__},name: {self.set_name}, {self.set_code}"

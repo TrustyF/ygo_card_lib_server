@@ -1,16 +1,10 @@
 from datetime import datetime
 
-from sqlalchemy import Column, DateTime
-from sqlalchemy.orm import declarative_base
-
-from main import db_session
-
-Model = declarative_base()
-Model.query = db_session.query_property()
+from main import db
 
 
-class TimeStampedModel(Model):
+class TimeStampedModel(db.Model):
     __abstract__ = True
 
-    created_at = Column(DateTime, default=datetime.utcnow())
-    updated_at = Column(DateTime, onupdate=datetime.utcnow())
+    created_at = db.Column(db.DateTime, default=datetime.utcnow())
+    updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow())
