@@ -1,9 +1,13 @@
 import json
+import os.path
+from pprint import pprint
+
+import sqlalchemy
 
 from card_matcher.tools.settings_handler import SettingsHandler
 from constants import MAIN_DIR
 from main import db
-from sql_models.card_model import CardSet, Card
+from sql_models.card_model import CardSet, Card, CardSetAssociation
 import requests
 
 settings = SettingsHandler('remote_settings.json')
@@ -22,17 +26,24 @@ def check_remote_version_current():
 
 def get_card_sets():
     # request all sets
-    response = requests.get('https://db.ygoprodeck.com/api/v7/cardsets.php')
-    sets_data = response.json()
+    # response = requests.get('https://db.ygoprodeck.com/api/v7/cardsets.php')
+    # sets_data = response.json()
+    #
+    # with open('sets_temp.json', 'w') as outfile:
+    #     json.dump(sets_data, outfile, indent=1)
+
+    with open(os.path.join(MAIN_DIR, "database", 'sets_temp.json'), 'r') as infile:
+        sets_data = json.load(infile)
+
     return sets_data
 
 
 def map_card_set_from_remote_to_db(sets_data):
     for entry in sets_data:
         card_set = CardSet(
-            set_name=entry['set_name'],
+            name=entry['set_name'],
             set_code=entry['set_code'],
-            set_number_cards=entry['num_of_cards'],
+            cards_amount=entry['num_of_cards'],
         )
         db.session.add(card_set)
 
@@ -52,29 +63,67 @@ def get_cards():
 
 
 def map_cards_from_remote_to_db(cards):
-    for i, card in enumerate(cards):
-        if i > 10:
-            break
+    # make card sets
+    card_sets_raw = [x['card_sets'] for x in cards if 'card_sets' in x]
+    card_sets = [item for sublist in card_sets_raw for item in sublist]
 
-        new_card = Card(card_name=card['name'])
+    for card_set in card_sets:
+        # print(card_set)
+        # Check if set already exists else make it
+        set_entry = db.session.query(CardSet).filter_by(name=card_set['set_name']).first()
 
-        if 'card_sets' in card:
-            for card_set in card['card_sets']:
+        # make new set
+        if set_entry is None:
+            set_entry = CardSet(
+                name=card_set['set_name'],
+                set_code=card_set['set_code'].split('-')[0])
 
-                # Check if set already exists
-                set_entry = db.session.query(CardSet).filter_by(set_code=card_set['set_code']).first()
+            db.session.add(set_entry)
 
-                # Make set if none
-                if set_entry is None:
-                    set_entry = CardSet(set_name=card_set['set_name'], set_code=card_set['set_code'])
-                    db.session.add(set_entry)
+    db.session.commit()
 
-                # Add mutual relationship
-                new_card.sets.append(set_entry)
-                set_entry.cards.append(new_card)
-
-        db.session.add(new_card)
-        db.session.commit()
+    # make card
+    # for i, card in enumerate(cards):
+    #     if i % 100 == 0:
+    #         print(f'card {i} of {len(cards)}')
+    #
+    #     if i > 10:
+    #         break
+    #
+    #     # Check if card already exists
+    #     # if len(db.session.query(Card).all()) > 0:
+    #     #     card_entry = db.session.query(Card).filter_by(card_id=card['id']).first()
+    #     #
+    #     #     if card_entry:
+    #     #         print('found skipping')
+    #     #         continue
+    #
+    #     new_card = Card(
+    #         name=card['name'],
+    #         card_id=card['id'],
+    #         type=card.get('type', None),
+    #         desc=card.get('desc', None),
+    #         race=card.get('race', None),
+    #         archetype=card.get('archetype', None),
+    #     )
+    #     db.session.add(new_card)
+    #
+    #     # make sets
+    #     if 'card_sets' in card:
+    #         # Add mutual relationship
+    #         for card_set in card['card_sets']:
+    #             set_entry = db.session.query(CardSet).filter_by(name=card_set['set_name']).one()
+    #
+    #             print(set_entry.id, set_entry.name)
+    #             card_set_relation = CardSetAssociation(
+    #                 card_id=new_card.id,
+    #                 set_id=set_entry.id,
+    #                 card_code=card_set['set_code'],
+    #                 card_rarity=card_set['set_rarity'],
+    #                 card_rarity_code=card_set['set_rarity_code'],
+    #                 card_price=card_set['set_price'],
+    #             )
+    #             db.session.add(card_set_relation)
 
 
 def run():
@@ -82,5 +131,17 @@ def run():
     #     print('current is up-to-date with remote')
     #     return
 
-    # map_cards_from_remote_to_db(get_cards())
-    q = db.session.query(Card.card_name)
+    # map_card_set_from_remote_to_db(get_card_sets())
+    map_cards_from_remote_to_db(get_cards())
+    db.session.commit()
+
+    # entry = db.session.query(Card).filter_by(name='4-Starred Ladybug of Doom').first()
+    # print(entry)
+    # pprint(entry.sets)
+    #
+    # print('---')
+    #
+    # collection = db.session.query(CardSet).filter_by(set_code='PSV-EN088').first()
+    collection = db.session.query(CardSet).filter_by(set_code='YS15').first()
+    print(collection)
+    # pprint(collection.cards)

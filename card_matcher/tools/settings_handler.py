@@ -1,10 +1,12 @@
 import json
 import os.path
 
+from constants import MAIN_DIR
+
 
 class SettingsHandler:
     def __init__(self, file_path):
-        self.file_path = file_path
+        self.file_path = os.path.join(MAIN_DIR, "database", file_path)
 
         self.data = None
         self.load()
