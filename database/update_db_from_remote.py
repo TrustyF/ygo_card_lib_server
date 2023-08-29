@@ -51,16 +51,30 @@ def get_cards():
     return cards_data
 
 
-def map_cards_from_remote_to_db(sets_data):
-    for entry in sets_data:
-        card = Card(
-            card_name=entry['name'],
-            card_type=entry['frameType'],
-            card_desc=entry['desc'],
-            card_race=entry['race'],
-            card_archetype=entry['archetype'],
-        )
-        db.session.add(card)
+def map_cards_from_remote_to_db(cards):
+    for i, card in enumerate(cards):
+        if i > 10:
+            break
+
+        new_card = Card(card_name=card['name'])
+
+        if 'card_sets' in card:
+            for card_set in card['card_sets']:
+
+                # Check if set already exists
+                set_entry = db.session.query(CardSet).filter_by(set_code=card_set['set_code']).first()
+
+                # Make set if none
+                if set_entry is None:
+                    set_entry = CardSet(set_name=card_set['set_name'], set_code=card_set['set_code'])
+                    db.session.add(set_entry)
+
+                # Add mutual relationship
+                new_card.sets.append(set_entry)
+                set_entry.cards.append(new_card)
+
+        db.session.add(new_card)
+        db.session.commit()
 
 
 def run():
@@ -68,10 +82,5 @@ def run():
     #     print('current is up-to-date with remote')
     #     return
 
-    # card_sets = get_card_sets()
-    # map_card_set_from_remote_to_db(card_sets)
-
-    cards = get_cards()
-    map_cards_from_remote_to_db(cards)
-
-    db.session.commit()
+    # map_cards_from_remote_to_db(get_cards())
+    q = db.session.query(Card.card_name)

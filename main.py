@@ -20,8 +20,7 @@ def create_app():
     CORS(app)
 
     with app.app_context():
-
-        from sql_models import card_model, base_model
+        from sql_models.card_model import Card, CardSet
         db.create_all()
 
         # todo remove this
