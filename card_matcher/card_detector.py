@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 
 from card_matcher.tools import filters, tools
-from card_matcher.webcam import Webcam
+from extensions import Webcam
 
 
 class CardDetector:
@@ -27,6 +27,8 @@ class CardDetector:
 
         self.contour_frame = None
         self.cropped_frame = None
+
+        self.card_locked = False
 
     def update_detection_settings(self, name, value):
         self.settings[name] = value
@@ -103,6 +105,10 @@ class CardDetector:
 
                 if self.cropped_frame is not None:
                     self.final_filter_frame = filters.crop_white(self.cropped_frame, self.settings['white_cut'])
+
+                    # find the card
+                    if not self.card_locked:
+                        card_finder
 
             else:
                 self.cropped_frame = for_find_cont

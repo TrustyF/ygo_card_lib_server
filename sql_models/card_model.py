@@ -14,7 +14,7 @@ class Card(TimeStampedModel):
     race = db.Column(db.String(80))
     archetype = db.Column(db.String(80))
 
-    image_hash = db.Column(db.Integer)
+    image_hash = db.Column(db.String(255))
 
     sets = db.relationship("CardSet", secondary='card_set_association', back_populates="cards", passive_deletes=True)
 

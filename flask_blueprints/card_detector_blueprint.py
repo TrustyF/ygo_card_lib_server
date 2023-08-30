@@ -3,7 +3,7 @@ import time
 import cv2
 
 from card_matcher.tools import tools
-from app import webcam, card_detector
+from extensions import webcam, card_detector
 
 bp = Blueprint('card_detector', __name__)
 

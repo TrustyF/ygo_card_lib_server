@@ -2,7 +2,7 @@ from flask import Blueprint, request, Response
 import time
 import cv2
 
-from app import webcam, db
+from extensions import webcam
 
 bp = Blueprint('card_finder', __name__)
 

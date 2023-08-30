@@ -1,6 +1,5 @@
 from flask import Blueprint, request, Response
 
-from app import db
 from database.update_db_from_remote import run_update
 
 bp = Blueprint('database', __name__)
