@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from app import db
+from db_loader import db
 
 
 class TimeStampedModel(db.Model):

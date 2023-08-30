@@ -4,11 +4,11 @@ from PIL import Image
 import os
 
 from constants import HASH_SIZE, MAIN_DIR
-from app import db
-from sql_models.card_model import Card
+from db_loader import db
+from sql_models.card_model import Card, CardSet
 
 
-class CardFinder:
+class CardMatcher:
     def __init__(self):
         self.card_hashes = [imagehash.hex_to_hash(x.image_hash) for x in db.session.query(Card).all()]
 
@@ -33,6 +33,6 @@ class CardFinder:
 
         # find card
         closest_hash = min(self.card_hashes, key=lambda x: abs(x - image_hash))
-        closest_card = db.session.query(Card).filter(Card.image_hash == str(closest_hash)).one()
+        closest_card = db.session.query(Card).filter(Card.image_hash == str(closest_hash)).all()
 
         return closest_card

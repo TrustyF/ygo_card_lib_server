@@ -7,9 +7,9 @@ from PIL import Image
 
 import sqlalchemy
 
-from card_matcher.tools.settings_handler import SettingsHandler
+from detectors.tools.settings_handler import SettingsHandler
 from constants import MAIN_DIR, HASH_SIZE
-from app import db
+from db_loader import db
 from sql_models.card_model import CardSet, Card, CardSetAssociation
 
 settings = SettingsHandler('remote_settings.json')

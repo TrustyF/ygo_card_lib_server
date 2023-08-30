@@ -1,4 +1,4 @@
-from app import db
+from db_loader import db
 
 from sql_models.base_model import TimeStampedModel
 

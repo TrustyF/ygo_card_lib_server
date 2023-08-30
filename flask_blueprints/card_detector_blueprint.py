@@ -2,8 +2,10 @@ from flask import Blueprint, request, Response
 import time
 import cv2
 
-from card_matcher.tools import tools
+from detectors.tools import tools
 from extensions import webcam, card_detector
+from db_loader import db
+from sql_models.card_model import Card, CardSet
 
 bp = Blueprint('card_detector', __name__)
 

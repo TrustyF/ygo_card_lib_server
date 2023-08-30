@@ -1,13 +1,14 @@
 import cv2
 import numpy as np
 
-from card_matcher.tools import filters, tools
-from extensions import Webcam
+from detectors.tools import filters, tools
+from detectors.webcam import Webcam
+from detectors.card_matcher import CardMatcher
 
 
 class CardDetector:
     def __init__(self, video: Webcam):
-
+        self.matcher = CardMatcher()
         self.video = video
         self.settings = tools.load_user_settings()
 
@@ -29,6 +30,7 @@ class CardDetector:
         self.cropped_frame = None
 
         self.card_locked = False
+        self.solidity_timer = 0
 
     def update_detection_settings(self, name, value):
         self.settings[name] = value
@@ -105,12 +107,26 @@ class CardDetector:
 
                 if self.cropped_frame is not None:
                     self.final_filter_frame = filters.crop_white(self.cropped_frame, self.settings['white_cut'])
+                    self.solidity_timer += 1
 
                     # find the card
-                    if not self.card_locked:
-                        card_finder
+                    if not self.card_locked and self.solidity_timer > 5:
+                        self.card_locked = True
+                        self.solidity_timer = max(self.solidity_timer, 5)
+
+                        print('card locked')
+                        matched_card = self.matcher.match_card(self.final_filter_frame)
+                        print(matched_card)
 
             else:
+                if self.card_locked:
+                    self.solidity_timer -= 1
+                    self.solidity_timer = max(self.solidity_timer, 0)
+
+                    if self.solidity_timer == 0:
+                        self.card_locked = False
+                        print('card unlocked')
+
                 self.cropped_frame = for_find_cont
                 self.final_filter_frame = for_find_cont
 
