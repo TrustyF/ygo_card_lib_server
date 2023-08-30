@@ -45,7 +45,7 @@ class CardSetAssociation(db.Model):
     #     db.UniqueConstraint('card_id', 'set_id', name="card_to_set_combo"),
     # )
 
-    association_id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     card_id = db.Column(db.Integer, db.ForeignKey('Cards.id', ondelete="CASCADE"))
     set_id = db.Column(db.Integer, db.ForeignKey('CardSets.id', ondelete="CASCADE"))
 
@@ -54,3 +54,5 @@ class CardSetAssociation(db.Model):
     card_rarity_code = db.Column(db.String(80))
     card_price = db.Column(db.Float)
 
+    def __repr__(self):
+        return f" {self.id}-{self.__class__.__name__},code: {self.card_code}, {self.card_rarity}, {self.card_price}"
