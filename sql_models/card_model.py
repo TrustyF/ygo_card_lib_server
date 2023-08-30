@@ -39,7 +39,7 @@ class CardSet(TimeStampedModel):
         return f" {self.id}-{self.__class__.__name__},name: {self.name}, {self.set_code}"
 
 
-class CardSetAssociation(db.Model):
+class CardSetAssociation(TimeStampedModel):
     __tablename__ = "card_set_association"
     # __table_args__ = (
     #     db.UniqueConstraint('card_id', 'set_id', name="card_to_set_combo"),
@@ -56,3 +56,15 @@ class CardSetAssociation(db.Model):
 
     def __repr__(self):
         return f" {self.id}-{self.__class__.__name__},code: {self.card_code}, {self.card_rarity}, {self.card_price}"
+
+
+class CardScanned(TimeStampedModel):
+    __tablename__ = "CardScanned"
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    card_id = db.Column(db.Integer, db.ForeignKey('Cards.id', ondelete="CASCADE"))
+
+    card_code = db.Column(db.String(80))
+    card_rarity = db.Column(db.String(80))
+    card_rarity_code = db.Column(db.String(80))
+    card_price = db.Column(db.Float)

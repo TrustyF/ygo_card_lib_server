@@ -6,7 +6,7 @@
  "auto_bright_bias": 1,
  "canny": 308,
  "dilate": 1,
- "white_cut": 99,
+ "white_cut": 35,
  "solidity": 90,
  "diameter": 57
 }

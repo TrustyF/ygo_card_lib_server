@@ -99,6 +99,8 @@ class CardDetector:
                 f"solidity = {round(solidity, 1)}\n equi_diameter = {round(equi_diameter, 1)}\n orientation = "
                 f"{round(orient, 1)}\n")
 
+            self.solidity_timer = max(min(10, self.solidity_timer), 0)
+
             if solidity > (self.settings.get('solidity', 0) / 100) and equi_diameter > self.settings.get('diameter',
                                                                                                          0):
                 cropped_frame = filters.straighten_crop_image(rect, for_crop, 0)
@@ -110,20 +112,17 @@ class CardDetector:
                     self.solidity_timer += 1
 
                     # find the card
-                    if not self.card_locked and self.solidity_timer > 5:
+                    if not self.card_locked and self.solidity_timer >= 10:
                         self.card_locked = True
-                        self.solidity_timer = max(self.solidity_timer, 5)
 
                         print('card locked')
-                        matched_card = self.matcher.match_card(self.final_filter_frame)
-                        print(matched_card)
+                        self.matcher.match_card(self.final_filter_frame)
 
             else:
                 if self.card_locked:
                     self.solidity_timer -= 1
-                    self.solidity_timer = max(self.solidity_timer, 0)
 
-                    if self.solidity_timer == 0:
+                    if self.solidity_timer <= 0:
                         self.card_locked = False
                         print('card unlocked')
 

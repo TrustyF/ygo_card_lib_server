@@ -14,9 +14,9 @@ CORS(app)
 with app.app_context():
     db.init_app(app)
 
-    # from sql_models.card_model import Card, CardSet
+    import sql_models
     # db.drop_all()
-    # db.create_all()
+    db.create_all()
 
     from flask_blueprints import card_finder_blueprint, card_detector_blueprint, datasbase_blueprint
 

@@ -5,7 +5,8 @@ import os
 
 from constants import HASH_SIZE, MAIN_DIR
 from db_loader import db
-from sql_models.card_model import Card, CardSet
+from sql_models.card_model import Card, CardSet, CardScanned
+from app import app
 
 
 class CardMatcher:
@@ -13,6 +14,7 @@ class CardMatcher:
         self.card_hashes = [imagehash.hex_to_hash(x.image_hash) for x in db.session.query(Card).all()]
 
     def match_card(self, frame):
+        app.app_context().push()
 
         if frame is None:
             print('image is none, cant match')
@@ -29,10 +31,15 @@ class CardMatcher:
         reversed_distance = rotated_image_hash - control_card_hash
 
         if upright_distance > reversed_distance:
+            print('card upside down')
             image_hash = rotated_image_hash
 
         # find card
         closest_hash = min(self.card_hashes, key=lambda x: abs(x - image_hash))
-        closest_card = db.session.query(Card).filter(Card.image_hash == str(closest_hash)).all()
+        closest_card = db.session.query(Card).filter(Card.image_hash == str(closest_hash)).one()
 
-        return closest_card
+        # add to lib
+        scanned = CardScanned(card_id=closest_card.id)
+        db.session.add(scanned)
+        db.session.commit()
+        print(f"{closest_card.name} added")
