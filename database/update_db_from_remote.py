@@ -6,7 +6,7 @@ import sqlalchemy
 
 from card_matcher.tools.settings_handler import SettingsHandler
 from constants import MAIN_DIR
-from main import db
+from app import db
 from sql_models.card_model import CardSet, Card, CardSetAssociation
 import requests
 
@@ -18,6 +18,7 @@ def check_remote_version_current():
     remote_data = response.json()[0]
 
     if settings.get('remote_version') == remote_data['database_version']:
+        print('remote and local up-to-date')
         return True
     else:
         settings.set('remote_version', remote_data['database_version'])
@@ -103,22 +104,13 @@ def map_remote_to_db():
                 db.session.add(card_set_relation)
 
 
-def run():
-    # if check_remote_version_current():
-    #     print('current is up-to-date with remote')
-    #     return
-
-    # todo restore this
-    map_remote_to_db()
-    db.session.commit()
+def run_update():
+    if not check_remote_version_current():
+        map_remote_to_db()
+        db.session.commit()
 
     entry = db.session.query(Card).filter_by(name='Dark Magician').one()
     print(entry)
     acc = db.session.query(CardSetAssociation).filter_by(card_id=entry.id).all()
     print(acc)
     pprint(entry.sets)
-
-    # print('---')
-    # collection = db.session.query(CardSet).filter_by(name="Pharaoh's Servant").one()
-    # print(collection)
-    # pprint(collection.cards)
