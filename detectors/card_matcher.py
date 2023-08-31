@@ -5,13 +5,14 @@ import os
 
 from constants import HASH_SIZE, MAIN_DIR
 from db_loader import db
-from sql_models.card_model import Card, CardSet, CardScanned
+from sql_models.card_model import Card, CardSet, UserCards, CardTemplate
 from app import app
 
 
 class CardMatcher:
     def __init__(self):
-        self.card_hashes = [imagehash.hex_to_hash(x.image_hash) for x in db.session.query(Card).all()]
+        self.card_hashes = [imagehash.hex_to_hash(x.image_hash) for x in db.session.query(CardTemplate).all()
+                            if x.image_hash is not None]
 
     def match_card(self, frame):
         app.app_context().push()
@@ -39,7 +40,7 @@ class CardMatcher:
         closest_card = db.session.query(Card).filter(Card.image_hash == str(closest_hash)).one()
 
         # add to lib
-        scanned = CardScanned(card_id=closest_card.id)
+        scanned = UserCards(card_id=closest_card.id)
         db.session.add(scanned)
         db.session.commit()
         print(f"{closest_card.name} added")
