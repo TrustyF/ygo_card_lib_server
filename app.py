@@ -32,9 +32,8 @@ with app.app_context():
     # code = db.session.query(CardSetAssociation).filter_by(card_id=card.id, set_id=162).all()
     # pprint(code)
 
-    from flask_blueprints import card_finder_blueprint, card_detector_blueprint, datasbase_blueprint, card_blueprint
+    from flask_blueprints import card_detector_blueprint, datasbase_blueprint, card_blueprint
 
-    app.register_blueprint(card_finder_blueprint.bp, url_prefix='/card_finder')
     app.register_blueprint(card_detector_blueprint.bp, url_prefix='/card_detector')
     app.register_blueprint(datasbase_blueprint.bp, url_prefix='/database')
     app.register_blueprint(card_blueprint.bp, url_prefix='/card')

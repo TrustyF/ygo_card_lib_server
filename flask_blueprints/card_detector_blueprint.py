@@ -30,3 +30,9 @@ def set_settings():
     response = request.json
     card_detector.update_detection_settings(response['slider_name'], response['slider_value'])
     return []
+
+
+@bp.route("/start_detection", methods=["GET"])
+def start_detection():
+    card_detector.start_scanning = not card_detector.start_scanning
+    return []

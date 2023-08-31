@@ -37,7 +37,7 @@ class CardMatcher:
 
         # find card
         closest_hash = min(self.card_hashes, key=lambda x: abs(x - image_hash))
-        closest_card = db.session.query(Card).filter(Card.image_hash == str(closest_hash)).one()
+        closest_card = db.session.query(CardTemplate).filter(CardTemplate.image_hash == str(closest_hash)).one()
 
         # add to lib
         scanned = UserCards(card_id=closest_card.id)

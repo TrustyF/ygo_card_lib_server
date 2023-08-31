@@ -112,6 +112,11 @@ class CardDetector:
                     self.final_filter_frame = filters.crop_white(self.cropped_frame, self.settings['white_cut'])
                     self.solidity_timer += 1
 
+                    if self.solidity_timer >= 10 and self.start_scanning and not self.card_locked:
+                        self.card_locked = True
+                        print('card locked')
+                        self.matcher.match_card(self.final_filter_frame)
+
             else:
                 if self.card_locked:
                     self.solidity_timer -= 1
