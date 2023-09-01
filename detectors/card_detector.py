@@ -147,6 +147,7 @@ class CardDetector:
             stacked1 = np.vstack((
                 filters.resize_with_aspect_ratio(self.gray_frame, width=200),
                 filters.resize_with_aspect_ratio(self.canny_frame, width=200),
+                filters.resize_with_aspect_ratio(self.blurred_frame, width=200),
             ))
             stacked2 = np.vstack((
                 filters.resize_with_aspect_ratio(self.cropped_frame, width=200),

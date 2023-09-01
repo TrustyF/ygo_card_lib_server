@@ -156,12 +156,7 @@ def hash_images():
 
 def run_update():
     if not check_remote_version_current():
+        # if True:
         map_remote_to_db()
         download_images()
         hash_images()
-
-    # entry = db.session.query(Card).filter_by(name='Dark Magician').one()
-    # print(entry)
-    # acc = db.session.query(CardSetAssociation).filter_by(card_id=entry.id).all()
-    # print(acc)
-    # pprint(entry.sets)

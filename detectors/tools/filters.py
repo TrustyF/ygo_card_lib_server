@@ -80,7 +80,7 @@ def contrast_and_exposure(img, exposure, contrast):
 
 def custom_blur(img, basic_blur, gauss_blur):
     median = cv2.medianBlur(img, basic_blur)
-    gauss = cv2.GaussianBlur(median, (11, 11), gauss_blur)
+    gauss = cv2.GaussianBlur(median, (9, 9), 0)
     return gauss
 
 

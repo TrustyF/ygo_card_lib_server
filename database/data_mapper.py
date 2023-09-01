@@ -6,15 +6,17 @@ def map_card(uc):
         'type': uc.card.type,
         'race': uc.card.race,
         'archetype': uc.card.archetype,
-        'code': None,
-        'rarity': None,
-        'rarity_code': None,
-        'card_price': None,
-        'card_sell_price': None,
-        'card_sets': [{
-            'card_code': ac.card_code,
-            'card_rarity': ac.card_rarity,
-            'card_rarity_code': ac.card_rarity_code,
-            'card_price': ac.card_price,
-        } for ac in uc.card.association]
+        'language': uc.card_language,
+        'code': uc.card_code,
+        'rarity': uc.card_rarity,
+        'rarity_code': uc.card_rarity_code,
+        'price': uc.card_price,
+        'sell_price': uc.card_sell_price,
+        'amount': uc.card_amount,
+        'sets': [{
+            'card_code': cc.card_code,
+            'card_rarity': cc.card_rarity,
+            'card_rarity_code': cc.card_rarity_code,
+            'card_price': cc.card_price,
+        } for cc in uc.card.coded_cards]
     }
