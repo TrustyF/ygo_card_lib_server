@@ -5,7 +5,8 @@ import os
 
 from constants import HASH_SIZE, MAIN_DIR
 from db_loader import db
-from sql_models.card_model import Card, CardSet, UserCards, CardTemplate
+from globals import db_status
+from sql_models.card_model import Card, CardSet, UserCard, CardTemplate
 from app import app
 
 
@@ -37,10 +38,11 @@ class CardMatcher:
 
         # find card
         closest_hash = min(self.card_hashes, key=lambda x: abs(x - image_hash))
-        closest_card = db.session.query(CardTemplate).filter(CardTemplate.image_hash == str(closest_hash)).one()
+        closest_card = db.session.query(CardTemplate).filter(CardTemplate.image_hash == str(closest_hash)).first()
 
         # add to lib
-        scanned = UserCards(card_id=closest_card.id)
+        scanned = UserCard(card_id=closest_card.id)
         db.session.add(scanned)
         db.session.commit()
+        db_status.modified = True
         print(f"{closest_card.name} added")

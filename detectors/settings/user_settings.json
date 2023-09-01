@@ -1,12 +1,12 @@
 {
- "exposure": 8,
- "contrast": 500,
+ "exposure": 1,
+ "contrast": 0,
  "median_blur": 0,
  "gauss_blur": 1,
  "auto_bright_bias": 1,
- "canny": 301,
- "dilate": 1,
- "white_cut": 61,
+ "canny": 208,
+ "dilate": 7,
+ "white_cut": 159,
  "solidity": 90,
  "diameter": 57
 }

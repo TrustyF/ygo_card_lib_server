@@ -45,7 +45,7 @@ class CardDetector:
             return
 
             # Filtering
-        self.resized_frame = filters.resize_with_aspect_ratio(frame, 200)
+        self.resized_frame = filters.resize_with_aspect_ratio(frame, width=200)
         self.white_balanced_frame = filters.auto_white_balance(self.resized_frame)
         self.auto_contrast_frame, _, _ = filters.automatic_brightness_and_contrast(self.white_balanced_frame,
                                                                                    self.settings.get(
@@ -144,11 +144,17 @@ class CardDetector:
             if self.final_filter_frame is None:
                 return
 
-            stacked = np.vstack((
-                filters.resize_with_aspect_ratio(self.gray_frame, width=200, height=200),
-                filters.resize_with_aspect_ratio(self.canny_frame, width=200, height=200),
-                filters.resize_with_aspect_ratio(self.cropped_frame, width=200, height=200),
-                filters.resize_with_aspect_ratio(self.final_filter_frame, width=200, height=200),
+            stacked1 = np.vstack((
+                filters.resize_with_aspect_ratio(self.gray_frame, width=200),
+                filters.resize_with_aspect_ratio(self.canny_frame, width=200),
+            ))
+            stacked2 = np.vstack((
+                filters.resize_with_aspect_ratio(self.cropped_frame, width=200),
+                filters.resize_with_aspect_ratio(self.final_filter_frame, width=200),
+            ))
+            stacked = np.hstack((
+                filters.resize_with_aspect_ratio(stacked1, height=300),
+                filters.resize_with_aspect_ratio(stacked2, height=300),
             ))
             formatted = cv2.cvtColor(stacked, cv2.COLOR_BGR2RGB)
 

@@ -1,28 +1,49 @@
+import io
 import json
+import os.path
 
-from flask import Blueprint, request, Response, jsonify
+from flask import Blueprint, request, Response, jsonify, send_file
 
+from constants import MAIN_DIR
+from database.data_mapper import map_card
 from db_loader import db
-from sql_models.card_model import Card, CardTemplate, CardSet, UserCards
+from globals import db_status
+from sql_models.card_model import Card, CardTemplate, CardSet, UserCard
 
 bp = Blueprint('card', __name__)
 
 
 @bp.route("/get_all", methods=["GET"])
 def get_all():
-    associations = db.session.query(UserCards).all()
+    card_limit = request.args.get('limit')
+    card_offset = request.args.get('offset')
 
-    mapped_cards = [{
-        'name': association.card.name,
-        'type': association.card.type,
-        'race': association.card.race,
-        'archetype': association.card.archetype,
-        'code': association.card_code,
-        'rarity': association.card_rarity,
-        'rarity_code': association.card_rarity_code,
-        'card_price': association.card_price,
-    } for association in associations]
+    user_cards = db.session.query(UserCard) \
+        .order_by(UserCard.created_at.desc()) \
+        .limit(card_limit) \
+        .all()
 
-    # print(associations[0].card_set)
+    # print(user_cards[0].card.association[0].card_code)
+    mapped_cards = [map_card(uc) for uc in user_cards]
 
-    return jsonify(mapped_cards)
+    return mapped_cards
+
+
+@bp.route("/get_image", methods=["GET"])
+def get_image():
+    card_id = request.args.get('id')
+    file_path = os.path.join(MAIN_DIR, "assets", "images_small", f"{card_id}")
+    return send_file(file_path, mimetype='image/jpg')
+
+
+@bp.route("/delete", methods=["DELETE"])
+def delete():
+    card_id = request.args.get('id')
+    print(f'deleting {card_id}')
+    db.session.query(UserCard) \
+        .filter_by(card_id=card_id) \
+        .where(UserCard.card_amount <= 1) \
+        .delete()
+    db.session.commit()
+    db_status.modified = True
+    return []
