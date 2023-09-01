@@ -17,7 +17,15 @@ def get_webcam_feed():
 
 @bp.route("/get_filter_feed", methods=["GET"])
 def get_filter_feed():
-    return Response(card_detector.get_filter_feed(), mimetype='multipart/x-mixed-replace; boundary=frame')
+    response = Response(card_detector.get_filter_feed(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+    # todo deny frontend when not in use
+    # Set Cache-Control headers to prevent caching
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+
+    return response
 
 
 @bp.route("/get_settings", methods=["GET"])

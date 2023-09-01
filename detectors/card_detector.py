@@ -144,6 +144,9 @@ class CardDetector:
             if self.final_filter_frame is None:
                 return
 
+            # todo make square detection more strict
+            print(self.detection_stats)
+
             stacked1 = np.vstack((
                 filters.resize_with_aspect_ratio(self.gray_frame, width=200),
                 filters.resize_with_aspect_ratio(self.canny_frame, width=200),
