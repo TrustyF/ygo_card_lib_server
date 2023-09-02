@@ -21,9 +21,9 @@ def get_filter_feed():
 
     # todo deny frontend when not in use
     # Set Cache-Control headers to prevent caching
-    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
-    response.headers['Pragma'] = 'no-cache'
-    response.headers['Expires'] = '0'
+    # response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    # response.headers['Pragma'] = 'no-cache'
+    # response.headers['Expires'] = '0'
 
     return response
 
