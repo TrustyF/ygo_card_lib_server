@@ -42,8 +42,10 @@ class CardMatcher:
 
         # add to lib
         # todo increase card counter if it exists
-        closest_coded_card = db.session.query(Card).filter_by(card_id=closest_card.id).first()
-        scanned = UserCard(card_template_id=closest_card.id, card_id=closest_coded_card.id)
+        # todo make function
+        # closest_coded_card = db.session.query(Card).filter_by(card_id=closest_card.id).first()
+        # scanned = UserCard(card_template_id=closest_card.id, card_id=closest_coded_card.id)
+        scanned = UserCard(card_template_id=closest_card.id)
         db.session.add(scanned)
         db.session.commit()
         db_status.modified = True

@@ -54,14 +54,11 @@ def delete():
 
 @bp.route("/set_card_code", methods=["GET"])
 def set_card_code():
-    card_id = request.args.get('id')
-    card_code = request.args.get('code')
-    print(f'updating code of {card_id} to {card_code}')
+    user_card_id = request.args.get('user_card_id')
+    card_id = request.args.get('card_id')
+    print(f'updating card to {card_id}')
 
-    card = db.session.query(UserCard).filter_by(id=card_id).one()
-    coded_card = db.session.query(Card).filter_by(card_id=card.card_template_id, card_code=card_code).first()
-
-    db.session.query(UserCard).filter_by(id=card_id).update({'card_id': coded_card.id})
+    db.session.query(UserCard).filter_by(id=user_card_id).update({'card_id': card_id})
     db.session.commit()
     db_status.modified = True
     return []
