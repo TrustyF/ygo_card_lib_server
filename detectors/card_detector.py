@@ -1,3 +1,5 @@
+import time
+
 import cv2
 import numpy as np
 
@@ -102,8 +104,7 @@ class CardDetector:
 
             self.solidity_timer = max(min(10, self.solidity_timer), 0)
 
-            if solidity > (self.settings.get('solidity', 0) / 100) and equi_diameter > self.settings.get('diameter',
-                                                                                                         0):
+            if solidity > (self.settings.get('solidity', 0) / 100) and equi_diameter > self.settings.get('diameter', 0):
                 cropped_frame = filters.straighten_crop_image(rect, for_crop, 0)
                 cropped_frame = cv2.rotate(cropped_frame, cv2.ROTATE_90_CLOCKWISE)
                 self.cropped_frame = filters.resize_with_aspect_ratio(cropped_frame, width=168, height=249)
@@ -141,11 +142,8 @@ class CardDetector:
         while True:
             self.detect_card()
 
-            if self.final_filter_frame is None:
-                return
-
-            # todo make square detection more strict
-            # print(self.detection_stats)
+            # if self.final_filter_frame is None:
+            #     return
 
             stacked1 = np.vstack((
                 filters.resize_with_aspect_ratio(self.gray_frame, width=200),

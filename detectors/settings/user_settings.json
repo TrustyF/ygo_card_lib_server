@@ -4,7 +4,7 @@
  "median_blur": 0,
  "gauss_blur": 1,
  "auto_bright_bias": 1,
- "canny": 47,
+ "canny": 397,
  "dilate": 19,
  "white_cut": 63,
  "solidity": 90,

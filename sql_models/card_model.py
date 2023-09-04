@@ -46,6 +46,7 @@ class CardTemplate(db.Model):
     image_hash: str = db.Column(db.String(255))
 
     coded_cards = db.relationship("Card", back_populates="card_template", passive_deletes=True)
+    users = db.relationship("UserCard", back_populates="card_template", passive_deletes=True)
 
     def __repr__(self):
         return f" {self.id}-{self.__class__.__name__},name: {self.name}, {self.type}"
@@ -69,7 +70,7 @@ class Card(db.Model):
     users = db.relationship("UserCard", back_populates="card", passive_deletes=True)
 
     def __repr__(self):
-        return f" {self.id}-{self.__class__.__name__},code: {self.card_code}, {self.card_rarity}, {self.card_price}"
+        return f" {self.id}-{self.__class__.__name__},{self.card_template},code: {self.card_code}, {self.card_rarity}, {self.card_price}"
 
 
 @dataclass
@@ -77,11 +78,11 @@ class UserCard(TimeStampedModel):
     __tablename__ = "UserCards"
 
     id: int = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    card_id: int = db.Column(db.Integer, db.ForeignKey('Cards.id'))
+    card_id: int = db.Column(db.Integer, db.ForeignKey('Cards.id'), unique=True)
+    card_template_id: int = db.Column(db.Integer, db.ForeignKey('CardTemplates.id'))
     storage_id: int = db.Column(db.Integer, db.ForeignKey('CardStorages.id'))
 
     card_language: str = db.Column(db.String(80))
-    card_price: float = db.Column(db.Float)
     card_sell_price: float = db.Column(db.Float)
     card_amount: int = db.Column(db.Integer, default=1)
 
@@ -89,4 +90,8 @@ class UserCard(TimeStampedModel):
     is_in_use: bool = db.Column(db.Boolean, default=False)
 
     card = db.relationship("Card", back_populates="users", passive_deletes=True)
+    card_template = db.relationship("CardTemplate", back_populates="users", passive_deletes=True)
     card_storage = db.relationship("CardStorage", back_populates="cards", passive_deletes=True)
+
+    def __repr__(self):
+        return f" {self.id}-{self.__class__.__name__},card: {self.card}, {self.card_storage}"

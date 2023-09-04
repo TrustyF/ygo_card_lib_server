@@ -83,8 +83,8 @@ def map_remote_to_db():
         if i % 100 == 0:
             print(f'card {i} of {len(cards)}')
 
-        if i > 50:
-            break
+        # if i > 50:
+        #     break
 
         card_template = CardTemplate(
             name=card['name'],

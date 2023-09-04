@@ -41,8 +41,10 @@ class CardMatcher:
         closest_card = db.session.query(CardTemplate).filter(CardTemplate.image_hash == str(closest_hash)).first()
 
         # add to lib
-        scanned = UserCard(card_id=closest_card.id)
+        # todo increase card counter if it exists
+        closest_coded_card = db.session.query(Card).filter_by(card_id=closest_card.id).first()
+        scanned = UserCard(card_template_id=closest_card.id, card_id=closest_coded_card.id)
         db.session.add(scanned)
         db.session.commit()
         db_status.modified = True
-        print(f"{closest_card.name} added")
+        print(f"{closest_card.name} {closest_card.card_id} added")
