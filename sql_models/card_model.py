@@ -76,7 +76,7 @@ class Card(db.Model):
 @dataclass
 class UserCard(TimeStampedModel):
     __tablename__ = "UserCards"
-    __table_args__ = (db.UniqueConstraint('card_id', 'storage_id', name="card_storage_combo"))
+    __table_args__ = (db.UniqueConstraint('card_id', 'storage_id', name="card_storage_combo"),)
 
     id: int = db.Column(db.Integer, primary_key=True, autoincrement=True)
     card_id: int = db.Column(db.Integer, db.ForeignKey('Cards.id'))

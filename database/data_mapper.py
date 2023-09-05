@@ -10,7 +10,7 @@ def map_card(uc):
     card_template = db.session.query(CardTemplate).filter_by(id=uc.card_template_id).one()
     card = db.session.query(Card).filter_by(id=uc.card_id).one_or_none()
     card_sets = db.session.query(Card).filter_by(card_id=uc.card_template_id).all()
-    # card_storages = db.session.query(CardStorage).all()
+    card_storage = db.session.query(CardStorage).filter_by(id=uc.storage_id).one_or_none()
 
     mapped = {
         'user_card_id': uc.id,
@@ -43,6 +43,8 @@ def map_card(uc):
             'card_rarity': cs.card_rarity,
             'card_rarity_code': cs.card_rarity_code,
         } for cs in card_sets],
+
+        'storage_name': None,
     }
 
     if card is not None:
@@ -53,4 +55,14 @@ def map_card(uc):
             'price': card.card_price,
         }
 
+    if card_storage is not None:
+        mapped = mapped | {
+            'storage_name': card_storage.name,
+        }
+
     return mapped
+
+
+def map_card_storage(cs):
+    print(cs)
+    return cs

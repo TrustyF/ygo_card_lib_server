@@ -62,3 +62,15 @@ def set_card_code():
     db.session.commit()
     db_status.modified = True
     return []
+
+
+@bp.route("/set_card_storage", methods=["GET"])
+def set_card_storage():
+    user_card_id = request.args.get('user_card_id')
+    storage_id = request.args.get('storage_id')
+    print(f'setting card in storage {storage_id}')
+
+    db.session.query(UserCard).filter_by(id=user_card_id).update({'storage_id': storage_id})
+    db.session.commit()
+    db_status.modified = True
+    return []
