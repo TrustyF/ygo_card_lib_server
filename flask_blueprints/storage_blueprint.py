@@ -24,5 +24,5 @@ def get_image():
     if storage is None:
         return []
 
-    file_path = os.path.join(MAIN_DIR, "assets", "images_storage", f"{storage.name}.png")
+    file_path = os.path.join(MAIN_DIR, "assets", "images_storage", f"{storage.name}_thumbnail.png")
     return send_file(file_path, mimetype='image/png')

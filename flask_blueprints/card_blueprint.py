@@ -25,9 +25,21 @@ def get():
 @bp.route("/get_all", methods=["GET"])
 def get_all():
     card_limit = request.args.get('card_limit')
-    card_offset = request.args.get('card_offset')
+    page = request.args.get('page')
 
-    user_cards = db.session.query(UserCard).order_by(UserCard.id.desc()).limit(card_limit).all()
+    # print(card_limit, page)
+
+    query = db.session.query(UserCard).order_by(UserCard.id.desc())
+
+    if page:
+        query = query.limit(int(page) * int(card_limit))
+    elif card_limit:
+        query = query.limit(int(card_limit))
+    # else:
+    #     user_cards = query.all()
+
+    user_cards = query.all()
+
     mapped_cards = [map_card(uc) for uc in user_cards]
 
     return mapped_cards
