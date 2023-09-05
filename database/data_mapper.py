@@ -5,7 +5,7 @@ from sql_models.card_model import *
 
 
 def map_card(uc):
-    print(uc)
+    # print(uc)
 
     card_template = db.session.query(CardTemplate).filter_by(id=uc.card_template_id).one()
     card = db.session.query(Card).filter_by(id=uc.card_id).one_or_none()
@@ -64,5 +64,5 @@ def map_card(uc):
 
 
 def map_card_storage(cs):
-    print(cs)
+    # print(cs)
     return cs

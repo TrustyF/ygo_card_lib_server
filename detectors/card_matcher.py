@@ -5,7 +5,6 @@ import os
 
 from constants import HASH_SIZE, MAIN_DIR
 from db_loader import db
-from globals import db_status
 from sql_models.card_model import Card, CardSet, UserCard, CardTemplate
 from app import app
 
@@ -48,5 +47,4 @@ class CardMatcher:
         scanned = UserCard(card_template_id=closest_card.id)
         db.session.add(scanned)
         db.session.commit()
-        db_status.modified = True
         print(f"{closest_card.name} {closest_card.card_id} added")

@@ -8,7 +8,6 @@ from flask import Blueprint, request, Response, jsonify, send_file
 from constants import MAIN_DIR
 from database.data_mapper import map_card
 from db_loader import db
-from globals import db_status
 from sql_models.card_model import Card, CardTemplate, CardSet, UserCard
 
 bp = Blueprint('card', __name__)
@@ -25,10 +24,10 @@ def get():
 
 @bp.route("/get_all", methods=["GET"])
 def get_all():
-    card_limit = request.args.get('limit')
-    card_offset = request.args.get('offset')
+    card_limit = request.args.get('card_limit')
+    card_offset = request.args.get('card_offset')
 
-    user_cards = db.session.query(UserCard).order_by(UserCard.card_id).all()
+    user_cards = db.session.query(UserCard).order_by(UserCard.id.desc()).limit(card_limit).all()
     mapped_cards = [map_card(uc) for uc in user_cards]
 
     return mapped_cards
@@ -48,7 +47,6 @@ def delete():
 
     db.session.query(UserCard).filter_by(id=card_id).delete()
     db.session.commit()
-    db_status.modified = True
     return []
 
 
@@ -60,7 +58,6 @@ def set_card_code():
 
     db.session.query(UserCard).filter_by(id=user_card_id).update({'card_id': card_id})
     db.session.commit()
-    db_status.modified = True
     return []
 
 
@@ -72,5 +69,15 @@ def set_card_storage():
 
     db.session.query(UserCard).filter_by(id=user_card_id).update({'storage_id': storage_id})
     db.session.commit()
-    db_status.modified = True
+    return []
+
+
+@bp.route("/set_card_language", methods=["GET"])
+def set_card_language():
+    user_card_id = request.args.get('user_card_id')
+    language = request.args.get('language')
+    print(f'setting card language to {language}')
+
+    db.session.query(UserCard).filter_by(id=user_card_id).update({'card_language': language})
+    db.session.commit()
     return []

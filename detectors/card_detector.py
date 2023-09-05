@@ -90,7 +90,11 @@ class CardDetector:
 
             equi_diameter = np.sqrt(4 * area / np.pi)
 
-            (x, y), (MA, ma), orient = cv2.fitEllipse(cnt)
+            try:
+                (x, y), (MA, ma), orient = cv2.fitEllipse(cnt)
+            except Exception as e:
+                print(e)
+                print(cnt)
 
             rect = cv2.minAreaRect(cnt)
 
@@ -121,13 +125,15 @@ class CardDetector:
             else:
                 if self.card_locked:
                     self.solidity_timer -= 1
-
                     if self.solidity_timer <= 0:
                         self.card_locked = False
                         print('card unlocked')
 
                 self.cropped_frame = for_find_cont
                 self.final_filter_frame = for_find_cont
+
+        else:
+            self.solidity_timer = 0
 
     def find_card(self):
         while self.start_scanning:
@@ -142,25 +148,28 @@ class CardDetector:
         while True:
             self.detect_card()
 
-            # if self.final_filter_frame is None:
-            #     return
+            if any(obj is None for obj in [self.cropped_frame, self.final_filter_frame]):
+                ret, buffer = cv2.imencode('.jpg', self.resized_frame)
+                frame = buffer.tobytes()
+                yield (b'--frame\r\n'
+                       b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+            else:
+                stacked1 = np.vstack((
+                    filters.resize_with_aspect_ratio(self.gray_frame, width=200),
+                    filters.resize_with_aspect_ratio(self.canny_frame, width=200),
+                    filters.resize_with_aspect_ratio(self.blurred_frame, width=200),
+                ))
+                stacked2 = np.vstack((
+                    filters.resize_with_aspect_ratio(self.cropped_frame, width=200),
+                    filters.resize_with_aspect_ratio(self.final_filter_frame, width=200),
+                ))
+                stacked = np.hstack((
+                    filters.resize_with_aspect_ratio(stacked1, height=300),
+                    filters.resize_with_aspect_ratio(stacked2, height=300),
+                ))
+                formatted = cv2.cvtColor(stacked, cv2.COLOR_BGR2RGB)
 
-            stacked1 = np.vstack((
-                filters.resize_with_aspect_ratio(self.gray_frame, width=200),
-                filters.resize_with_aspect_ratio(self.canny_frame, width=200),
-                filters.resize_with_aspect_ratio(self.blurred_frame, width=200),
-            ))
-            stacked2 = np.vstack((
-                filters.resize_with_aspect_ratio(self.cropped_frame, width=200),
-                filters.resize_with_aspect_ratio(self.final_filter_frame, width=200),
-            ))
-            stacked = np.hstack((
-                filters.resize_with_aspect_ratio(stacked1, height=300),
-                filters.resize_with_aspect_ratio(stacked2, height=300),
-            ))
-            formatted = cv2.cvtColor(stacked, cv2.COLOR_BGR2RGB)
-
-            ret, buffer = cv2.imencode('.jpg', formatted)
-            frame = buffer.tobytes()
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+                ret, buffer = cv2.imencode('.jpg', formatted)
+                frame = buffer.tobytes()
+                yield (b'--frame\r\n'
+                       b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')

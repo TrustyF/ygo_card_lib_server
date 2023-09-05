@@ -19,7 +19,10 @@ def get_all():
 @bp.route("/get_image", methods=["GET"])
 def get_image():
     storage_id = request.args.get('id')
-    print(storage_id)
-    storage = db.session.query(CardStorage).filter_by(id=storage_id).one()
+    storage = db.session.query(CardStorage).filter_by(id=storage_id).one_or_none()
+
+    if storage is None:
+        return []
+
     file_path = os.path.join(MAIN_DIR, "assets", "images_storage", f"{storage.name}.png")
     return send_file(file_path, mimetype='image/png')

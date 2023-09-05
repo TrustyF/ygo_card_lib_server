@@ -19,7 +19,7 @@ with app.app_context():
     import sql_models
 
     # db.drop_all()
-    db.create_all()
+    # db.create_all()
 
     from flask_blueprints import card_detector_blueprint, datasbase_blueprint, card_blueprint, storage_blueprint
 

@@ -38,4 +38,5 @@ def set_settings():
 @bp.route("/start_detection", methods=["GET"])
 def start_detection():
     card_detector.start_scanning = not card_detector.start_scanning
+    print('card_detector.start_scanning',card_detector.start_scanning)
     return []
