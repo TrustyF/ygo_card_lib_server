@@ -4,8 +4,9 @@ import os.path
 from pprint import pprint
 
 from flask import Blueprint, request, Response, jsonify, send_file
+from sqlalchemy import and_
 
-from constants import MAIN_DIR
+from constants import MAIN_DIR, CARD_TYPE_PRIORITY
 from database.data_mapper import map_card
 from db_loader import db
 from sql_models.card_model import Card, CardTemplate, CardSet, UserCard
@@ -29,7 +30,17 @@ def get_all():
     card_limit = request.args.get('card_limit')
     page = request.args.get('page')
 
-    query = db.session.query(UserCard).order_by(UserCard.created_at.desc())
+    query = (
+        db.session
+        .query(UserCard)
+        .join(Card)
+        .join(CardTemplate)
+        # .order_by(Card.card_price.desc())
+        .filter(CardTemplate.archetype != None)
+        # .filter(UserCard.card_language == None)
+        # .order_by(Card.card_price.desc(),CardTemplate.archetype, CARD_TYPE_PRIORITY, CardTemplate.name)
+        .order_by(Card.card_price.desc())
+    )
 
     if page:
         query = query.limit(int(page) * int(card_limit))
@@ -37,7 +48,6 @@ def get_all():
         query = query.limit(int(card_limit))
 
     user_cards = query.all()
-
     mapped_cards = [map_card(uc) for uc in user_cards]
 
     # for in case I fuck up the cards again
