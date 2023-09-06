@@ -45,6 +45,11 @@ class CardTemplate(db.Model):
 
     image_hash: str = db.Column(db.String(255))
 
+    ban_ocg: str = db.Column(db.String(80))
+    ban_tcg: str = db.Column(db.String(80))
+
+    is_staple: bool = db.Column(db.Boolean, default=False)
+
     coded_cards = db.relationship("Card", back_populates="card_template", passive_deletes=True)
     users = db.relationship("UserCard", back_populates="card_template", passive_deletes=True)
 
@@ -57,12 +62,13 @@ class Card(db.Model):
     __tablename__ = "Cards"
 
     id: int = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    card_id: int = db.Column(db.Integer, db.ForeignKey('CardTemplates.id'))
-    set_id: int = db.Column(db.Integer, db.ForeignKey('CardSets.id'))
+    card_id: int = db.Column(db.Integer, db.ForeignKey('CardTemplates.id', ondelete='CASCADE'))
+    set_id: int = db.Column(db.Integer, db.ForeignKey('CardSets.id', ondelete='CASCADE'))
 
     card_code: str = db.Column(db.String(80))
     card_rarity: str = db.Column(db.String(80))
     card_rarity_code: str = db.Column(db.String(80))
+    card_edition: str = db.Column(db.String(255))
     card_price: float = db.Column(db.Float)
 
     card_template = db.relationship("CardTemplate", back_populates="coded_cards", passive_deletes=True)
@@ -76,16 +82,14 @@ class Card(db.Model):
 @dataclass
 class UserCard(TimeStampedModel):
     __tablename__ = "UserCards"
-    __table_args__ = (db.UniqueConstraint('card_id', 'storage_id', name="card_storage_combo"),)
 
     id: int = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    card_id: int = db.Column(db.Integer, db.ForeignKey('Cards.id'))
-    card_template_id: int = db.Column(db.Integer, db.ForeignKey('CardTemplates.id'))
-    storage_id: int = db.Column(db.Integer, db.ForeignKey('CardStorages.id'))
+    card_id: int = db.Column(db.Integer, db.ForeignKey('Cards.id', ondelete='CASCADE'))
+    card_template_id: int = db.Column(db.Integer, db.ForeignKey('CardTemplates.id', ondelete='CASCADE'))
+    storage_id: int = db.Column(db.Integer, db.ForeignKey('CardStorages.id', ondelete='CASCADE'))
 
     card_language: str = db.Column(db.String(80))
     card_sell_price: float = db.Column(db.Float)
-    card_amount: int = db.Column(db.Integer, default=1)
 
     is_deleted: bool = db.Column(db.Boolean, default=False)
     is_in_use: bool = db.Column(db.Boolean, default=False)

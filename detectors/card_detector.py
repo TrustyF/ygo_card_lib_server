@@ -33,7 +33,9 @@ class CardDetector:
 
         self.card_locked = False
         self.solidity_timer = 0
+
         self.start_scanning = False
+        self.is_getting_feed = False
 
     def update_detection_settings(self, name, value):
         self.settings[name] = value
@@ -145,7 +147,7 @@ class CardDetector:
 
     def get_filter_feed(self):
 
-        while True:
+        while self.is_getting_feed:
             self.detect_card()
 
             if any(obj is None for obj in [self.cropped_frame, self.final_filter_frame]):

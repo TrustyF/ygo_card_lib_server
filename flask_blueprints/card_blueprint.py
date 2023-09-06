@@ -18,6 +18,8 @@ def get():
     card_id = request.args.get('id')
 
     card = db.session.query(UserCard).filter_by(id=card_id).one()
+    db.session.close()
+
     mapped_card = map_card(card)
     return mapped_card
 
@@ -27,20 +29,20 @@ def get_all():
     card_limit = request.args.get('card_limit')
     page = request.args.get('page')
 
-    # print(card_limit, page)
-
-    query = db.session.query(UserCard).order_by(UserCard.id.desc())
+    query = db.session.query(UserCard).order_by(UserCard.created_at.desc())
 
     if page:
         query = query.limit(int(page) * int(card_limit))
     elif card_limit:
         query = query.limit(int(card_limit))
-    # else:
-    #     user_cards = query.all()
 
     user_cards = query.all()
 
     mapped_cards = [map_card(uc) for uc in user_cards]
+
+    # for in case I fuck up the cards again
+    # with open(f'{MAIN_DIR}/database/old_cards.json', 'w') as outfile:
+    #     json.dump(mapped_cards, outfile, indent=1)
 
     return mapped_cards
 
@@ -59,6 +61,8 @@ def delete():
 
     db.session.query(UserCard).filter_by(id=card_id).delete()
     db.session.commit()
+    db.session.close()
+
     return []
 
 
@@ -70,6 +74,8 @@ def set_card_code():
 
     db.session.query(UserCard).filter_by(id=user_card_id).update({'card_id': card_id})
     db.session.commit()
+    db.session.close()
+
     return []
 
 
@@ -81,6 +87,8 @@ def set_card_storage():
 
     db.session.query(UserCard).filter_by(id=user_card_id).update({'storage_id': storage_id})
     db.session.commit()
+    db.session.close()
+
     return []
 
 
@@ -92,4 +100,6 @@ def set_card_language():
 
     db.session.query(UserCard).filter_by(id=user_card_id).update({'card_language': language})
     db.session.commit()
+    db.session.close()
+
     return []

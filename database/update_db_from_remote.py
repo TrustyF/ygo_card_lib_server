@@ -31,9 +31,8 @@ def check_remote_version_current():
 
 
 def get_cards():
-    print('Requesting all cards')
-    # request all cards
-    # response = requests.get('https://db.ygoprodeck.com/api/v7/cardinfo.php')
+    # print('Requesting all cards')
+    # response = requests.get('https://db.ygoprodeck.com/api/v7/cardinfo.php?tcgplayer_data=yes')
     # cards_data = response.json()
     #
     # with open(f'{MAIN_DIR}/database/cards_temp.json', 'w') as outfile:
@@ -45,9 +44,39 @@ def get_cards():
     return cards_data
 
 
+def get_ban_list():
+    # print('Requesting ban list')
+    # response = requests.get('https://db.ygoprodeck.com/api/v7/cardinfo.php?banlist=tcg')
+    # cards_data = response.json()
+    #
+    # with open(f'{MAIN_DIR}/database/ban_temp.json', 'w') as outfile:
+    #     json.dump(cards_data['data'], outfile, indent=1)
+
+    with open(f'{MAIN_DIR}/database/ban_temp.json', 'r') as infile:
+        cards_data = json.load(infile)
+
+    return cards_data
+
+
+def get_staple_list():
+    # print('Requesting staple list')
+    # response = requests.get('https://db.ygoprodeck.com/api/v7/cardinfo.php?staple=yes')
+    # cards_data = response.json()
+    #
+    # with open(f'{MAIN_DIR}/database/staple_temp.json', 'w') as outfile:
+    #     json.dump(cards_data['data'], outfile, indent=1)
+
+    with open(f'{MAIN_DIR}/database/staple_temp.json', 'r') as infile:
+        cards_data = json.load(infile)
+
+    return cards_data
+
+
 def map_remote_to_db():
     print('Mapping info to db')
     cards = get_cards()
+    ban_list = get_ban_list()
+    staple_list = get_staple_list()
 
     # check all sets and make missing ones
     card_sets_raw = [x['card_sets'] for x in cards if 'card_sets' in x]
@@ -77,7 +106,6 @@ def map_remote_to_db():
 
         # Check if set already exists else make it
         if card['name'] in db_card_names:
-            # print(f'already found {card["name"]}')
             continue
 
         if i % 100 == 0:
@@ -86,6 +114,20 @@ def map_remote_to_db():
         # if i > 50:
         #     break
 
+        # check if card is banned or staple
+        banned_ocg = None
+        banned_tcg = None
+        staple = None
+
+        for banned_card in ban_list:
+            if card['id'] == banned_card['id']:
+                banned_ocg = banned_card['banlist_info'].get('ban_ocg', None)
+                banned_tcg = banned_card['banlist_info'].get('ban_tcg', None)
+
+        for staple_card in staple_list:
+            if card['id'] == staple_card['id']:
+                staple = True
+
         card_template = CardTemplate(
             name=card['name'],
             card_id=card['id'],
@@ -93,6 +135,9 @@ def map_remote_to_db():
             desc=card.get('desc', None),
             race=card.get('race', None),
             archetype=card.get('archetype', None),
+            ban_ocg=banned_ocg,
+            ban_tcg=banned_tcg,
+            is_staple=staple,
         )
         db.session.add(card_template)
 
@@ -107,11 +152,13 @@ def map_remote_to_db():
                     card_code=card_set['set_code'],
                     card_rarity=card_set['set_rarity'],
                     card_rarity_code=card_set['set_rarity_code'],
-                    card_price=card_set['set_price'],
+                    card_price=card_set['set_price'].replace(',', ''),
+                    card_edition=card_set['set_edition'],
                 )
                 db.session.add(card)
 
     db.session.commit()
+    db.session.close()
 
 
 def download_images():
@@ -152,6 +199,7 @@ def hash_images():
             card.image_hash = str(card_hash)
 
     db.session.commit()
+    db.session.close()
 
 
 def run_update():

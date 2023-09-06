@@ -37,6 +37,25 @@ def set_settings():
 
 @bp.route("/start_detection", methods=["GET"])
 def start_detection():
-    card_detector.start_scanning = not card_detector.start_scanning
-    print('card_detector.start_scanning',card_detector.start_scanning)
+    state = request.args.get('state')
+
+    if state == 'true':
+        card_detector.start_scanning = True
+    if state == 'false':
+        card_detector.start_scanning = False
+
+    print('card_detector.start_scanning', card_detector.start_scanning)
+    return []
+
+
+@bp.route("/toggle_feed", methods=["GET"])
+def toggle_feed():
+    state = request.args.get('state')
+
+    if state == 'true':
+        card_detector.is_getting_feed = True
+    if state == 'false':
+        card_detector.is_getting_feed = False
+
+    print('card_detector.is_getting_feed', card_detector.is_getting_feed)
     return []

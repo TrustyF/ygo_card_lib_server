@@ -4,7 +4,7 @@ from PIL import Image
 import os
 
 from constants import HASH_SIZE, MAIN_DIR
-from db_loader import db
+from db_loader import db,db_session
 from sql_models.card_model import Card, CardSet, UserCard, CardTemplate
 from app import app
 
@@ -40,11 +40,9 @@ class CardMatcher:
         closest_card = db.session.query(CardTemplate).filter(CardTemplate.image_hash == str(closest_hash)).first()
 
         # add to lib
-        # todo increase card counter if it exists
-        # todo make function
-        # closest_coded_card = db.session.query(Card).filter_by(card_id=closest_card.id).first()
-        # scanned = UserCard(card_template_id=closest_card.id, card_id=closest_coded_card.id)
         scanned = UserCard(card_template_id=closest_card.id)
         db.session.add(scanned)
         db.session.commit()
+        # db.session.close()
+
         print(f"{closest_card.name} {closest_card.card_id} added")

@@ -24,14 +24,18 @@ def map_card(uc):
         'race': card_template.race,
         'archetype': card_template.archetype,
 
+        'ban_ocg': card_template.ban_ocg,
+        'ban_tcg': card_template.ban_tcg,
+        'is_staple': card_template.is_staple,
+
         'code': None,
         'rarity': None,
         'rarity_code': None,
         'price': None,
+        'edition': None,
 
         'language': uc.card_language,
         'sell_price': uc.card_sell_price,
-        'amount': uc.card_amount,
 
         'is_in_use': uc.is_in_use,
         'is_deleted': uc.is_deleted,
@@ -42,6 +46,7 @@ def map_card(uc):
             'card_code': cs.card_code,
             'card_rarity': cs.card_rarity,
             'card_rarity_code': cs.card_rarity_code,
+            'card_edition': cs.card_edition,
         } for cs in card_sets],
 
         'storage_name': None,
@@ -53,6 +58,7 @@ def map_card(uc):
             'rarity': card.card_rarity,
             'rarity_code': card.card_rarity_code,
             'price': card.card_price,
+            'edition': card.card_edition,
         }
 
     if card_storage is not None:
