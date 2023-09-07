@@ -89,6 +89,7 @@ class UserCard(TimeStampedModel):
     storage_id: int = db.Column(db.Integer, db.ForeignKey('CardStorages.id', ondelete='CASCADE'))
 
     card_language: str = db.Column(db.String(80))
+    card_damage: str = db.Column(db.String(255))
     card_sell_price: float = db.Column(db.Float)
 
     is_deleted: bool = db.Column(db.Boolean, default=False)

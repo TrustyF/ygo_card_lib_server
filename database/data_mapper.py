@@ -36,6 +36,7 @@ def map_card(uc):
 
         'language': uc.card_language,
         'sell_price': uc.card_sell_price,
+        'card_damage': uc.card_damage,
 
         'is_in_use': uc.is_in_use,
         'is_deleted': uc.is_deleted,

@@ -4,7 +4,6 @@ import os.path
 from pprint import pprint
 
 from flask import Blueprint, request, Response, jsonify, send_file
-from sqlalchemy import and_
 
 from constants import MAIN_DIR, CARD_TYPE_PRIORITY
 from database.data_mapper import map_card
@@ -14,7 +13,7 @@ from sql_models.card_model import Card, CardTemplate, CardSet, UserCard
 bp = Blueprint('card', __name__)
 
 
-@bp.route("/get", methods=["GET"])
+@bp.route("/get")
 def get():
     card_id = request.args.get('id')
 
@@ -25,7 +24,7 @@ def get():
     return mapped_card
 
 
-@bp.route("/get_all", methods=["GET"])
+@bp.route("/get_all")
 def get_all():
     card_limit = request.args.get('card_limit')
     page = request.args.get('page')
@@ -33,13 +32,14 @@ def get_all():
     query = (
         db.session
         .query(UserCard)
-        .join(Card)
-        .join(CardTemplate)
+        # .join(Card)
+        # .join(CardTemplate)
         # .order_by(Card.card_price.desc())
-        .filter(CardTemplate.archetype != None)
+        # .filter(CardTemplate.archetype != None)
         # .filter(UserCard.card_language == None)
         # .order_by(Card.card_price.desc(),CardTemplate.archetype, CARD_TYPE_PRIORITY, CardTemplate.name)
-        .order_by(Card.card_price.desc())
+        # .order_by(Card.card_price.desc())
+        .order_by(UserCard.created_at.desc())
     )
 
     if page:
@@ -57,14 +57,39 @@ def get_all():
     return mapped_cards
 
 
-@bp.route("/get_image", methods=["GET"])
+@bp.route("/get_image")
 def get_image():
     card_id = request.args.get('id')
     file_path = os.path.join(MAIN_DIR, "assets", "images_small", f"{card_id}")
     return send_file(file_path, mimetype='image/jpg')
 
 
-@bp.route("/delete", methods=["GET"])
+@bp.route("/add_by_name")
+def add_by_name():
+    card_name = request.args.get('name')
+    print(f'searching for {card_name}')
+
+    find_card = db.session.query(CardTemplate).filter(CardTemplate.name.like(f'{card_name}')).all()
+
+    # expand search
+    if len(find_card) < 1:
+        find_card = db.session.query(CardTemplate).filter(CardTemplate.name.like(f'%{card_name}%')).all()
+
+    pprint(find_card)
+
+    if len(find_card) < 1:
+        print(f'{card_name} not found')
+        return []
+
+    new_card = UserCard(card_template_id=find_card[0].id)
+    db.session.add(new_card)
+    db.session.commit()
+    db.session.close()
+
+    return []
+
+
+@bp.route("/delete")
 def delete():
     card_id = request.args.get('id')
     print(f'deleting {card_id}')
@@ -76,39 +101,20 @@ def delete():
     return []
 
 
-@bp.route("/set_card_code", methods=["GET"])
-def set_card_code():
+@bp.route("/set_card_attrib")
+def set_card_attrib():
     user_card_id = request.args.get('user_card_id')
-    card_id = request.args.get('card_id')
-    print(f'updating card to {card_id}')
+    attr_name = request.args.get('attr_name')
+    attribute = request.args.get('attribute')
 
-    db.session.query(UserCard).filter_by(id=user_card_id).update({'card_id': card_id})
-    db.session.commit()
-    db.session.close()
+    print(f'updating card {attr_name} of card {user_card_id} to {attribute}')
 
-    return []
+    if attribute == 'null':
+        print('is null')
+        db.session.query(UserCard).filter_by(id=user_card_id).update({str(attr_name): None})
+    else:
+        db.session.query(UserCard).filter_by(id=user_card_id).update({str(attr_name): attribute})
 
-
-@bp.route("/set_card_storage", methods=["GET"])
-def set_card_storage():
-    user_card_id = request.args.get('user_card_id')
-    storage_id = request.args.get('storage_id')
-    print(f'setting card in storage {storage_id}')
-
-    db.session.query(UserCard).filter_by(id=user_card_id).update({'storage_id': storage_id})
-    db.session.commit()
-    db.session.close()
-
-    return []
-
-
-@bp.route("/set_card_language", methods=["GET"])
-def set_card_language():
-    user_card_id = request.args.get('user_card_id')
-    language = request.args.get('language')
-    print(f'setting card language to {language}')
-
-    db.session.query(UserCard).filter_by(id=user_card_id).update({'card_language': language})
     db.session.commit()
     db.session.close()
 
