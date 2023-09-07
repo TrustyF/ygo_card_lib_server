@@ -1,9 +1,9 @@
 {
- "exposure": 5,
+ "exposure": 1,
  "contrast": 38,
  "median_blur": 0,
  "gauss_blur": 1,
- "auto_bright_bias": 30,
+ "auto_bright_bias": 27,
  "canny": 335,
  "dilate": 3,
  "white_cut": 98,

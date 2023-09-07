@@ -42,8 +42,9 @@ def get():
 def get_all():
     card_limit = request.args.get('card_limit')
     page = request.args.get('page')
+    ordering = request.args.get('ordering')
 
-    print(page, card_limit)
+    print(page, card_limit, ordering)
 
     query = (
         db.session
@@ -53,11 +54,14 @@ def get_all():
         # .order_by(Card.card_price.desc())
         # .filter(CardTemplate.archetype != None)
         # .filter(UserCard.card_language == None)
-        .order_by(UserCard.storage_id, CARD_TYPE_PRIORITY, CardTemplate.name,
-                  )
         # .order_by(Card.card_price.desc())
         # .order_by(UserCard.created_at.desc())
     )
+
+    if ordering == 'new_first':
+        query = query.order_by(UserCard.created_at.asc())
+    else:
+        query = query.order_by(UserCard.storage_id, CARD_TYPE_PRIORITY, CardTemplate.name)
 
     if page:
         query = query.offset(int(page) * int(card_limit))
@@ -140,7 +144,17 @@ def search_by_name():
 
     found_cards = search_card_by_name(card_name)
     found_cards_ids = [x.id for x in found_cards]
-    cards_in_user = db.session.query(UserCard).filter(UserCard.card_template_id.in_(found_cards_ids))
+
+    query = (
+        db.session
+        .query(UserCard)
+        .join(CardTemplate)
+        .filter(UserCard.card_template_id.in_(found_cards_ids))
+        .order_by(UserCard.storage_id, CARD_TYPE_PRIORITY, CardTemplate.name)
+
+    )
+
+    cards_in_user = query.all()
 
     mapped_cards = [map_card(uc) for uc in cards_in_user]
 
