@@ -13,6 +13,20 @@ from sql_models.card_model import Card, CardTemplate, CardSet, UserCard
 bp = Blueprint('card', __name__)
 
 
+def search_card_by_name(f_name):
+    find_card = db.session.query(CardTemplate).filter(CardTemplate.name.like(f'{f_name}')).all()
+
+    # expand search
+    if len(find_card) < 1:
+        find_card = db.session.query(CardTemplate).filter(CardTemplate.name.like(f'%{f_name}%')).all()
+
+    if len(find_card) < 1:
+        print(f'{f_name} not found')
+        return []
+
+    return find_card
+
+
 @bp.route("/get")
 def get():
     card_id = request.args.get('id')
@@ -29,22 +43,25 @@ def get_all():
     card_limit = request.args.get('card_limit')
     page = request.args.get('page')
 
+    print(page, card_limit)
+
     query = (
         db.session
         .query(UserCard)
         # .join(Card)
-        # .join(CardTemplate)
+        .join(CardTemplate)
         # .order_by(Card.card_price.desc())
         # .filter(CardTemplate.archetype != None)
         # .filter(UserCard.card_language == None)
-        # .order_by(Card.card_price.desc(),CardTemplate.archetype, CARD_TYPE_PRIORITY, CardTemplate.name)
+        .order_by(UserCard.storage_id, CARD_TYPE_PRIORITY, CardTemplate.name,
+                  )
         # .order_by(Card.card_price.desc())
-        .order_by(UserCard.created_at.desc())
+        # .order_by(UserCard.created_at.desc())
     )
 
     if page:
-        query = query.limit(int(page) * int(card_limit))
-    elif card_limit:
+        query = query.offset(int(page) * int(card_limit))
+    if card_limit:
         query = query.limit(int(card_limit))
 
     user_cards = query.all()
@@ -69,19 +86,10 @@ def add_by_name():
     card_name = request.args.get('name')
     print(f'searching for {card_name}')
 
-    find_card = db.session.query(CardTemplate).filter(CardTemplate.name.like(f'{card_name}')).all()
+    found_cards = search_card_by_name(card_name)
 
-    # expand search
-    if len(find_card) < 1:
-        find_card = db.session.query(CardTemplate).filter(CardTemplate.name.like(f'%{card_name}%')).all()
+    new_card = UserCard(card_template_id=found_cards[0].id)
 
-    pprint(find_card)
-
-    if len(find_card) < 1:
-        print(f'{card_name} not found')
-        return []
-
-    new_card = UserCard(card_template_id=find_card[0].id)
     db.session.add(new_card)
     db.session.commit()
     db.session.close()
@@ -119,3 +127,21 @@ def set_card_attrib():
     db.session.close()
 
     return []
+
+
+@bp.route("/search_by_name")
+def search_by_name():
+    card_name = request.args.get('name')
+
+    if card_name is '':
+        return []
+
+    print(f'searching for {card_name}')
+
+    found_cards = search_card_by_name(card_name)
+    found_cards_ids = [x.id for x in found_cards]
+    cards_in_user = db.session.query(UserCard).filter(UserCard.card_template_id.in_(found_cards_ids))
+
+    mapped_cards = [map_card(uc) for uc in cards_in_user]
+
+    return mapped_cards
