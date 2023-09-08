@@ -59,7 +59,8 @@ def get_all():
     )
 
     if ordering == 'new_first':
-        query = query.order_by(UserCard.created_at.asc())
+        print('ordering by new first')
+        query = query.order_by(UserCard.created_at.desc())
     else:
         query = query.order_by(UserCard.storage_id, CARD_TYPE_PRIORITY, CardTemplate.name)
 
