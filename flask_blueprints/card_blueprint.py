@@ -54,6 +54,7 @@ def get_all():
         # .order_by(Card.card_price.desc())
         # .filter(CardTemplate.archetype != None)
         # .filter(UserCard.card_language == None)
+        # .filter(UserCard.storage_id == None)
         # .order_by(Card.card_price.desc())
         # .order_by(UserCard.created_at.desc())
     )
