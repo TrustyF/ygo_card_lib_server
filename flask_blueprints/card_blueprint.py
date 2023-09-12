@@ -41,14 +41,15 @@ def get():
 @bp.route("/get_all")
 def get_all():
     card_limit = request.args.get('card_limit')
+    card_page = request.args.get('card_page')
     ordering = request.args.get('ordering')
 
-    print(card_limit, ordering)
+    print(f'{card_limit =}', f'{ordering =}', f'{card_page =}')
 
     query = (
         db.session
         .query(UserCard)
-        .filter(UserCard.storage_id.notin_([11]))
+        .filter(UserCard.storage_id.notin_([11, 7, 4, 3, 2, 1]))
     )
 
     match ordering:
@@ -59,7 +60,9 @@ def get_all():
 
     query = query.join(Card).order_by(Card.card_price.desc())
     query = query.join(CardTemplate).order_by(UserCard.storage_id, CARD_TYPE_PRIORITY, CardTemplate.name)
-    query = query.limit(int(50))
+
+    query = query.offset(int(card_limit) * int(card_page))
+    query = query.limit(int(card_limit))
 
     user_cards = query.all()
     mapped_cards = [map_card(uc) for uc in user_cards]
