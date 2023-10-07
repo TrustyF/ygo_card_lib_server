@@ -78,7 +78,11 @@ def get_all():
 def get_image():
     card_id = request.args.get('id')
     file_path = os.path.join(MAIN_DIR, "assets", "images_small", f"{card_id}")
-    return send_file(file_path, mimetype='image/jpg')
+
+    try:
+        return send_file(file_path, mimetype='image/jpg')
+    except Exception:
+        return 404
 
 
 @bp.route("/add_by_name")

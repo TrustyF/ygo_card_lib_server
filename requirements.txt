@@ -13,3 +13,4 @@ Pillow~=10.0.0
 ImageHash~=4.3.1
 requests~=2.31.0
 SQLAlchemy~=2.0.20
+flask_sqlalchemy==3.1.1

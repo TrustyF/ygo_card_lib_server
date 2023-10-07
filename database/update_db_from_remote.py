@@ -4,13 +4,14 @@ from pprint import pprint
 import requests
 import imagehash
 from PIL import Image
+from concurrent.futures import ThreadPoolExecutor
 
 import sqlalchemy
 
 from detectors.tools.settings_handler import SettingsHandler
 from constants import MAIN_DIR, HASH_SIZE
 from db_loader import db
-from sql_models.card_model import CardSet, Card, CardTemplate
+from sql_models.card_model import *
 
 settings = SettingsHandler('remote_settings.json')
 small_images_path = os.path.join(MAIN_DIR, "assets", "images_small")
@@ -31,7 +32,8 @@ def check_remote_version_current():
 
 
 def get_cards():
-    # print('Requesting all cards')
+    print('Requesting all cards')
+
     # response = requests.get('https://db.ygoprodeck.com/api/v7/cardinfo.php?tcgplayer_data=yes')
     # cards_data = response.json()
     #
@@ -45,7 +47,8 @@ def get_cards():
 
 
 def get_ban_list():
-    # print('Requesting ban list')
+    print('Requesting ban list')
+
     # response = requests.get('https://db.ygoprodeck.com/api/v7/cardinfo.php?banlist=tcg')
     # cards_data = response.json()
     #
@@ -59,7 +62,8 @@ def get_ban_list():
 
 
 def get_staple_list():
-    # print('Requesting staple list')
+    print('Requesting staple list')
+
     # response = requests.get('https://db.ygoprodeck.com/api/v7/cardinfo.php?staple=yes')
     # cards_data = response.json()
     #
@@ -103,7 +107,6 @@ def map_remote_to_db():
     db_card_names = [db_name.name for db_name in db.session.query(CardTemplate).all()]
 
     for i, card in enumerate(cards):
-
         # Check if set already exists else make it
         if card['name'] in db_card_names:
             continue
@@ -162,23 +165,22 @@ def map_remote_to_db():
 
 
 def download_images():
+    def download_img(f_id):
+        response = requests.get(f'https://images.ygoprodeck.com/images/cards_small/{f_id}.jpg')
+
+        with open(os.path.join(small_images_path, f"{f_id}.jpg"), 'wb') as outfile:
+            outfile.write(response.content)
+
     print('Downloading card images')
 
     # get current images and all card ids
     downloaded_images_list = os.listdir(small_images_path)
     existing_images = [int(x.split('.')[0]) for x in downloaded_images_list]
     db_card_ids = [x.card_id for x in db.session.query(CardTemplate).all()]
+    un_downloaded_card_ids = [x for x in db_card_ids if x not in existing_images]
 
-    # compare current images to all ids
-    for card_id in db_card_ids:
-
-        # skip if existing
-        if card_id not in existing_images:
-            # save image
-            print(f'requesting {card_id}')
-            response = requests.get(f'https://images.ygoprodeck.com/images/cards_small/{card_id}.jpg')
-            with open(os.path.join(small_images_path, f"{card_id}.jpg"), 'wb') as outfile:
-                outfile.write(response.content)
+    with ThreadPoolExecutor(max_workers=5) as executor:
+        executor.map(download_img, un_downloaded_card_ids)
 
 
 def hash_images():
@@ -205,6 +207,6 @@ def hash_images():
 def run_update():
     # if not check_remote_version_current():
     if True:
-        map_remote_to_db()
+        # map_remote_to_db()
         download_images()
         hash_images()
