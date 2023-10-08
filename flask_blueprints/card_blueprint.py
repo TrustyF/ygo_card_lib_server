@@ -49,7 +49,7 @@ def get_all():
     query = (
         db.session
         .query(UserCard)
-        .filter(UserCard.storage_id.notin_([11, 7, 4, 3, 2, 1]))
+        # .filter(UserCard.storage_id.notin_([11, 7, 4, 3, 2, 1]))
     )
 
     match ordering:
