@@ -13,6 +13,12 @@ app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = f'sqlite:///{MAIN_DIR}/database/database.db'
 CORS(app)
 
+
+@app.route("/test")
+def test():
+    return "test", 200
+
+
 with app.app_context():
     # app.config['SQLALCHEMY_POOL_SIZE'] = 1
     # app.config['SQLALCHEMY_MAX_OVERFLOW'] = 0
