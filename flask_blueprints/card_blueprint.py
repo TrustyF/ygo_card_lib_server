@@ -2,6 +2,7 @@ import io
 import json
 import os.path
 from pprint import pprint
+import requests
 
 from flask import Blueprint, request, Response, jsonify, send_file
 
@@ -77,12 +78,15 @@ def get_all():
 @bp.route("/get_image")
 def get_image():
     card_id = request.args.get('id')
-    file_path = os.path.join(MAIN_DIR, "assets", "images_small", f"{card_id}")
+    file_path = os.path.join(MAIN_DIR, "assets", "card_images_cached", f"{card_id}.jpg")
 
-    try:
-        return send_file(file_path, mimetype='image/jpg')
-    except Exception:
-        return 404
+    if not os.path.exists(file_path):
+        response = requests.get(f'https://images.ygoprodeck.com/images/cards_small/{card_id}.jpg')
+
+        with open(file_path, 'wb') as outfile:
+            outfile.write(response.content)
+
+    return send_file(file_path, mimetype='image/jpg')
 
 
 @bp.route("/add_by_name")
