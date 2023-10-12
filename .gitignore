@@ -1,3 +1,5 @@
 /venv/
 /detectors/data/
 /assets/images_small/
+/.env
+/migrate.py

@@ -14,3 +14,5 @@ ImageHash~=4.3.1
 requests~=2.31.0
 SQLAlchemy~=2.0.20
 flask_sqlalchemy==3.1.1
+python-dotenv==1.0.0
+sshtunnel~=0.4.0
