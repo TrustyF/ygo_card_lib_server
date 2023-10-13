@@ -48,7 +48,7 @@ app = Flask(__name__)
 # app.config["SQLALCHEMY_DATABASE_URI"] = \
 #     f'mysql+pymysql://{db_username}:{db_password}@TrustyFox.mysql.pythonanywhere-services.com/{db_name}'
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://TrustyFox.mysql.pythonanywhere-services.com'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://TrustyFox.mysql.pythonanywhere-services.com'
 
 CORS(app)
 
