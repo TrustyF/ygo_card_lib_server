@@ -41,14 +41,12 @@ app = Flask(__name__)
 #     databasename="TrustyFox$ygo_cards_library",
 # )
 
+db_username = os.getenv('MYSQL_DATABASE_USERNAME')
+db_password = os.getenv('MYSQL_DATABASE_PASSWORD')
+db_name = 'TrustyFox$ygo_cards_library'
 
-app.config[
-    "SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://{username}:{password}@{hostname}/{databasename}".format(
-    username=os.getenv('MYSQL_DATABASE_USERNAME'),
-    password=os.getenv('MYSQL_DATABASE_PASSWORD'),
-    hostname="TrustyFox.mysql.pythonanywhere-services.com",
-    databasename="TrustyFox$ygo_cards_library",
-)
+app.config["SQLALCHEMY_DATABASE_URI"] = \
+    f'mysql+pymysql://{db_username}:{db_password}@TrustyFox.mysql.pythonanywhere-services.com/{db_name}'
 
 CORS(app)
 
