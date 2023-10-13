@@ -11,42 +11,17 @@ from dotenv import load_dotenv
 from constants import MAIN_DIR
 from db_loader import db
 
-load_dotenv()
+load_dotenv(os.path.join(MAIN_DIR, '.env'))
 
 app = Flask(__name__)
-
-# create ssh tunnel if used locally
-# import sshtunnel
-#
-# print('Making ssh tunnel')
-# # sshtunnel.SSH_TIMEOUT = 5.0
-# # sshtunnel.TUNNEL_TIMEOUT = 5.0
-#
-# server = sshtunnel.SSHTunnelForwarder(
-#     ('ssh.pythonanywhere.com'),
-#     ssh_username=os.getenv('SSH_USERNAME'),
-#     ssh_password=os.getenv('SSH_PASSWORD'),
-#     remote_bind_address=('TrustyFox.mysql.pythonanywhere-services.com', 3306)
-# )
-#
-# server.start()
-# local_port = str(server.local_bind_port)
-#
-# app.config[
-#     "SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://{username}:{password}@{hostname}:{ssh}/{databasename}".format(
-#     username=os.getenv('MYSQL_DATABASE_USERNAME'),
-#     password=os.getenv('MYSQL_DATABASE_PASSWORD'),
-#     hostname="127.0.0.1",
-#     ssh=local_port,
-#     databasename="TrustyFox$ygo_cards_library",
-# )
 
 db_username = os.getenv('MYSQL_DATABASE_USERNAME')
 db_password = os.getenv('MYSQL_DATABASE_PASSWORD')
 db_name = 'TrustyFox$ygo_cards_library'
 
-app.config["SQLALCHEMY_DATABASE_URI"] = \
-    f'mysql+pymysql://{db_username}:{db_password}@TrustyFox.mysql.pythonanywhere-services.com:3306/{db_name}'
+database_uri = f'mysql+pymysql://{db_username}:{db_password}@TrustyFox.mysql.pythonanywhere-services.com:3306/{db_name}'
+app.config["SQLALCHEMY_DATABASE_URI"] = database_uri
+
 
 CORS(app)
 
