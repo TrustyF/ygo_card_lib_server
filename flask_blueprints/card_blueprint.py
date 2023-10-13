@@ -154,7 +154,7 @@ def search_by_name():
         .query(UserCard)
         .join(CardTemplate)
         .filter(UserCard.card_template_id.in_(found_cards_ids))
-        .filter(UserCard.storage_id.notin_([11]))
+        .filter(UserCard.storage_id.notin_([11, 7, 4, 3, 2, 1]))
         .order_by(UserCard.storage_id, CARD_TYPE_PRIORITY, CardTemplate.name)
     )
 
