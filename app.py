@@ -45,11 +45,8 @@ db_username = os.getenv('MYSQL_DATABASE_USERNAME')
 db_password = os.getenv('MYSQL_DATABASE_PASSWORD')
 db_name = 'TrustyFox$ygo_cards_library'
 
-# app.config["SQLALCHEMY_DATABASE_URI"] = \
-#     f'mysql+pymysql://{db_username}:{db_password}@TrustyFox.mysql.pythonanywhere-services.com:3306/{db_name}'
-
 app.config["SQLALCHEMY_DATABASE_URI"] = \
-    f'mysql+pymysql://{db_username}:{db_password}@127.0.0.1:3306/{db_name}'
+    f'mysql+pymysql://{db_username}:{db_password}@TrustyFox.mysql.pythonanywhere-services.com:3306/{db_name}'
 
 CORS(app)
 
