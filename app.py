@@ -43,7 +43,7 @@ app = Flask(__name__)
 
 
 app.config[
-    "SQLALCHEMY_DATABASE_URI"] = 'mysql+pymysql://{username}:{password}@{hostname}/{databasename}'.format(
+    "SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://{username}:{password}@{hostname}/{databasename}".format(
     username=os.getenv('MYSQL_DATABASE_USERNAME'),
     password=os.getenv('MYSQL_DATABASE_PASSWORD'),
     hostname="TrustyFox.mysql.pythonanywhere-services.com",
