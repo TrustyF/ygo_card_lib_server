@@ -22,7 +22,6 @@ db_name = 'TrustyFox$ygo_cards_library'
 database_uri = f'mysql+pymysql://{db_username}:{db_password}@TrustyFox.mysql.pythonanywhere-services.com:3306/{db_name}'
 app.config["SQLALCHEMY_DATABASE_URI"] = database_uri
 
-
 CORS(app)
 
 
