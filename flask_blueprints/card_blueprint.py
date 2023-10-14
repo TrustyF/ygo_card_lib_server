@@ -110,7 +110,7 @@ def delete():
     card_id = request.args.get('id')
     print(f'deleting {card_id}')
 
-    db.session.query(UserCard).filter_by(id=card_id).delete()
+    db.session.update(UserCard).where(id=card_id).values(is_deleted=1)
     db.session.commit()
     db.session.close()
 
