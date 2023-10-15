@@ -11,6 +11,8 @@ from dotenv import load_dotenv
 from constants import MAIN_DIR
 from db_loader import db
 
+dev_mode = False
+
 load_dotenv(os.path.join(MAIN_DIR, '.env'))
 
 app = Flask(__name__)
@@ -20,7 +22,13 @@ db_password = os.getenv('MYSQL_DATABASE_PASSWORD')
 db_name = 'TrustyFox$ygo_cards_library'
 
 database_uri = f'mysql+pymysql://{db_username}:{db_password}@TrustyFox.mysql.pythonanywhere-services.com:3306/{db_name}'
-app.config["SQLALCHEMY_DATABASE_URI"] = database_uri
+local_database_uri = f'mysql+pymysql://root:{db_password}@127.0.0.1:3306/{db_name}'
+
+if dev_mode:
+    print('using local')
+    app.config["SQLALCHEMY_DATABASE_URI"] = local_database_uri
+else:
+    app.config["SQLALCHEMY_DATABASE_URI"] = database_uri
 
 CORS(app)
 

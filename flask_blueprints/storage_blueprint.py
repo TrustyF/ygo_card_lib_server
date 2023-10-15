@@ -11,6 +11,7 @@ bp = Blueprint('storage', __name__)
 
 @bp.route("/get_all", methods=["GET"])
 def get_all():
+
     storages = db.session.query(CardStorage).all()
     mapped_storage = [cs for cs in storages]
     return mapped_storage

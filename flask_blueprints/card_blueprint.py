@@ -50,17 +50,15 @@ def get_all():
     query = (
         db.session
         .query(UserCard)
-        .filter(UserCard.storage_id.notin_([11, 7, 4, 3, 2, 1]))
+        .filter(UserCard.storage_id.notin_([4]))
     )
 
     match ordering:
         case 'new_first':
             query = query.order_by(UserCard.created_at.desc())
         case _:
-            pass
-
-    query = query.join(Card).order_by(Card.card_price.desc())
-    query = query.join(CardTemplate).order_by(UserCard.storage_id, CARD_TYPE_PRIORITY, CardTemplate.name)
+            query = query.join(Card).order_by(Card.card_price.desc())
+            query = query.join(CardTemplate).order_by(UserCard.storage_id, CARD_TYPE_PRIORITY, CardTemplate.name)
 
     query = query.offset(int(card_limit) * int(card_page))
     query = query.limit(int(card_limit))
@@ -110,7 +108,8 @@ def delete():
     card_id = request.args.get('id')
     print(f'deleting {card_id}')
 
-    db.session.update(UserCard).where(id=card_id).values(is_deleted=1)
+    # db.session.update(UserCard).where(id=card_id).values(is_deleted=1)
+    db.session.query(UserCard).filter_by(id=card_id).delete()
     db.session.commit()
     db.session.close()
 
