@@ -28,6 +28,7 @@ if dev_mode:
     print('using local')
     app.config["SQLALCHEMY_DATABASE_URI"] = local_database_uri
 else:
+    print('using cloud')
     app.config["SQLALCHEMY_DATABASE_URI"] = database_uri
 
 CORS(app)
