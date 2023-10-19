@@ -50,13 +50,13 @@ def get_all():
     query = (
         db.session
         .query(UserCard)
-        .filter(UserCard.storage_id.notin_([4]))
     )
 
     match ordering:
         case 'new_first':
             query = query.order_by(UserCard.created_at.desc())
         case _:
+            query = query.filter(UserCard.storage_id.notin_([4]))
             query = query.join(Card).order_by(Card.card_price.desc())
             query = query.join(CardTemplate).order_by(UserCard.storage_id, CARD_TYPE_PRIORITY, CardTemplate.name)
 
@@ -153,7 +153,7 @@ def search_by_name():
         .query(UserCard)
         .join(CardTemplate)
         .filter(UserCard.card_template_id.in_(found_cards_ids))
-        .filter(UserCard.storage_id.notin_([11]))
+        # .filter(UserCard.storage_id.notin_([11]))
         .order_by(UserCard.storage_id, CARD_TYPE_PRIORITY, CardTemplate.name)
     )
 
