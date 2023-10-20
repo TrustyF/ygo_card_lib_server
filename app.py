@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 from constants import MAIN_DIR
 from db_loader import db
 
-dev_mode = False
+dev_mode = True
 
 load_dotenv(os.path.join(MAIN_DIR, '.env'))
 

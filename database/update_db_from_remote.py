@@ -34,14 +34,14 @@ def check_remote_version_current():
 def get_cards():
     print('Requesting all cards')
 
-    # response = requests.get('https://db.ygoprodeck.com/api/v7/cardinfo.php?tcgplayer_data=yes')
-    # cards_data = response.json()
-    #
+    response = requests.get('https://db.ygoprodeck.com/api/v7/cardinfo.php?tcgplayer_data=yes')
+    cards_data = response.json()
+
     # with open(f'{MAIN_DIR}/database/cards_temp.json', 'w') as outfile:
     #     json.dump(cards_data['data'], outfile, indent=1)
 
-    with open(f'{MAIN_DIR}/database/cards_temp.json', 'r') as infile:
-        cards_data = json.load(infile)
+    # with open(f'{MAIN_DIR}/database/cards_temp.json', 'r') as infile:
+    #     cards_data = json.load(infile)
 
     return cards_data
 
@@ -49,14 +49,14 @@ def get_cards():
 def get_ban_list():
     print('Requesting ban list')
 
-    # response = requests.get('https://db.ygoprodeck.com/api/v7/cardinfo.php?banlist=tcg')
-    # cards_data = response.json()
-    #
+    response = requests.get('https://db.ygoprodeck.com/api/v7/cardinfo.php?banlist=tcg')
+    cards_data = response.json()
+
     # with open(f'{MAIN_DIR}/database/ban_temp.json', 'w') as outfile:
     #     json.dump(cards_data['data'], outfile, indent=1)
-
-    with open(f'{MAIN_DIR}/database/ban_temp.json', 'r') as infile:
-        cards_data = json.load(infile)
+    #
+    # with open(f'{MAIN_DIR}/database/ban_temp.json', 'r') as infile:
+    #     cards_data = json.load(infile)
 
     return cards_data
 
@@ -64,14 +64,14 @@ def get_ban_list():
 def get_staple_list():
     print('Requesting staple list')
 
-    # response = requests.get('https://db.ygoprodeck.com/api/v7/cardinfo.php?staple=yes')
-    # cards_data = response.json()
-    #
+    response = requests.get('https://db.ygoprodeck.com/api/v7/cardinfo.php?staple=yes')
+    cards_data = response.json()
+
     # with open(f'{MAIN_DIR}/database/staple_temp.json', 'w') as outfile:
     #     json.dump(cards_data['data'], outfile, indent=1)
-
-    with open(f'{MAIN_DIR}/database/staple_temp.json', 'r') as infile:
-        cards_data = json.load(infile)
+    #
+    # with open(f'{MAIN_DIR}/database/staple_temp.json', 'r') as infile:
+    #     cards_data = json.load(infile)
 
     return cards_data
 
@@ -205,8 +205,8 @@ def hash_images():
 
 
 def run_update():
-    # if not check_remote_version_current():
-    if True:
-        # map_remote_to_db()
+    if not check_remote_version_current():
+    # if True:
+        map_remote_to_db()
         download_images()
         hash_images()

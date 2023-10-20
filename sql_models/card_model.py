@@ -24,6 +24,7 @@ class CardStorage(db.Model):
 
     id: int = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name: str = db.Column(db.String(255), unique=True, nullable=False)
+    ordering: int = db.Column(db.Integer, unique=True)
 
     cards = db.relationship("UserCard", back_populates="card_storage", passive_deletes=True)
 
