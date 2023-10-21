@@ -12,7 +12,7 @@ bp = Blueprint('storage', __name__)
 @bp.route("/get_all", methods=["GET"])
 def get_all():
 
-    storages = db.session.query(CardStorage).all()
+    storages = db.session.query(CardStorage).order_by(CardStorage.ordering).all()
     mapped_storage = [cs for cs in storages]
     return mapped_storage
 

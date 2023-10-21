@@ -44,8 +44,9 @@ def get_all():
     card_limit = request.args.get('card_limit')
     card_page = request.args.get('card_page')
     ordering = request.args.get('ordering')
+    storage = request.args.get('storage')
 
-    print(f'{card_limit =}', f'{ordering =}', f'{card_page =}')
+    print(f'{card_limit =}', f'{ordering =}', f'{card_page =}', f'{storage =}')
 
     query = (
         db.session
@@ -56,12 +57,17 @@ def get_all():
         case 'new_first':
             query = query.order_by(UserCard.created_at.desc())
         case _:
-            query = query.filter(UserCard.storage_id.notin_([4]))
             query = query.join(Card).order_by(Card.card_price.desc())
             query = query.join(CardTemplate).order_by(UserCard.storage_id, CARD_TYPE_PRIORITY, CardTemplate.name)
 
-    query = query.offset(int(card_limit) * int(card_page))
-    query = query.limit(int(card_limit))
+    if storage != 'undefined':
+        print('storage is not none')
+        query = query.filter(UserCard.storage_id == storage)
+
+    if card_limit != 'undefined':
+        print('limit is not none')
+        query = query.offset(int(card_limit) * int(card_page))
+        query = query.limit(int(card_limit))
 
     user_cards = query.all()
     mapped_cards = [map_card(uc) for uc in user_cards]
