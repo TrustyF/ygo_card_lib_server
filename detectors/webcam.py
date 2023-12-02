@@ -3,10 +3,13 @@ import cv2
 
 class Webcam:
     def __init__(self):
-        self.video = cv2.VideoCapture(0)
+        self.video = None
 
     def __del__(self):
         self.video.release()
+
+    def start_webcam(self):
+        self.video = cv2.VideoCapture(0)
 
     def get_frame_bytes(self):
         ret, frame = self.video.read()
