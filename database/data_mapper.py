@@ -38,6 +38,9 @@ def map_card(uc):
         'sell_price': uc.card_sell_price,
         'card_damage': uc.card_damage,
 
+        'updated_at': uc.updated_at,
+        'created_at': uc.created_at,
+
         'is_in_use': uc.is_in_use,
         'is_deleted': uc.is_deleted,
 

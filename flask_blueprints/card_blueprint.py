@@ -55,7 +55,7 @@ def get_all():
 
     match ordering:
         case 'new_first':
-            query = query.order_by(UserCard.created_at.desc())
+            query = query.order_by(UserCard.updated_at.desc())
         case 'card_type':
             query = query.join(CardTemplate).order_by(CARD_TYPE_PRIORITY, CardTemplate.name)
         case 'card_archetype':
