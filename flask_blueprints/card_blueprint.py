@@ -57,7 +57,7 @@ def get_all():
         case 'new_first':
             query = query.order_by(UserCard.created_at.desc())
         case 'card_type':
-            query = query.join(CardTemplate).order_by(CARD_TYPE_PRIORITY)
+            query = query.join(CardTemplate).order_by(CARD_TYPE_PRIORITY,CardTemplate.name)
         case 'card_archetype':
             query = query.join(CardTemplate).order_by(CardTemplate.archetype,CardTemplate.name)
         case _:
@@ -65,16 +65,15 @@ def get_all():
             query = query.join(CardTemplate).order_by(UserCard.storage_id, CARD_TYPE_PRIORITY, CardTemplate.name)
 
     if storage != 'undefined':
-        print('storage is not none')
         query = query.filter(UserCard.storage_id == storage)
 
     if card_limit != 'undefined':
-        print('limit is not none')
         query = query.offset(int(card_limit) * int(card_page))
         query = query.limit(int(card_limit))
 
     user_cards = query.all()
     mapped_cards = [map_card(uc) for uc in user_cards]
+    # print(mapped_cards)
 
     # for in case I fuck up the cards again
     # with open(f'{MAIN_DIR}/database/old_cards.json', 'w') as outfile:
