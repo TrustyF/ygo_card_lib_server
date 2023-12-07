@@ -149,11 +149,13 @@ def set_card_attrib():
 @bp.route("/search_by_name")
 def search_by_name():
     card_name = request.args.get('name')
+    storage = request.args.get('storage')
 
     if card_name == '':
         return []
 
     print(f'searching for {card_name}')
+    print(f'{storage =}')
 
     found_cards = search_card_by_name(card_name)
     found_cards_ids = [x.id for x in found_cards]
@@ -166,6 +168,9 @@ def search_by_name():
         # .filter(UserCard.storage_id.notin_([11]))
         .order_by(UserCard.storage_id, CARD_TYPE_PRIORITY, CardTemplate.name)
     )
+
+    if storage != 'undefined':
+        query = query.filter(UserCard.storage_id == storage)
 
     cards_in_user = query.all()
 
