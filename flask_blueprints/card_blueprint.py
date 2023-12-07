@@ -50,16 +50,16 @@ def get_all():
 
     query = (
         db.session
-        .query(UserCard)
+        .query(UserCard).filter(UserCard.is_deleted == 0)
     )
 
     match ordering:
         case 'new_first':
             query = query.order_by(UserCard.created_at.desc())
         case 'card_type':
-            query = query.join(CardTemplate).order_by(CARD_TYPE_PRIORITY,CardTemplate.name)
+            query = query.join(CardTemplate).order_by(CARD_TYPE_PRIORITY, CardTemplate.name)
         case 'card_archetype':
-            query = query.join(CardTemplate).order_by(CardTemplate.archetype,CardTemplate.name)
+            query = query.join(CardTemplate).order_by(CardTemplate.archetype, CardTemplate.name)
         case _:
             query = query.join(Card).order_by(Card.card_price.desc())
             query = query.join(CardTemplate).order_by(UserCard.storage_id, CARD_TYPE_PRIORITY, CardTemplate.name)
@@ -117,8 +117,9 @@ def delete():
     card_id = request.args.get('id')
     print(f'deleting {card_id}')
 
-    # db.session.update(UserCard).where(id=card_id).values(is_deleted=1)
-    db.session.query(UserCard).filter_by(id=card_id).delete()
+    db.session.query(UserCard).filter(UserCard.id == card_id).update({'is_deleted': 1})
+    # db.session.update(UserCard).where(UserCard.id == card_id).values(is_deleted=1)
+    # db.session.query(UserCard).filter_by(id=card_id).delete()
     db.session.commit()
     db.session.close()
 
