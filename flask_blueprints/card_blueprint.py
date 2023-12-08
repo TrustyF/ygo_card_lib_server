@@ -60,6 +60,7 @@ def get_all():
             query = query.join(CardTemplate).order_by(CARD_TYPE_PRIORITY, CardTemplate.name)
         case 'card_archetype':
             query = query.join(CardTemplate).order_by(CardTemplate.archetype, CardTemplate.name)
+            query = query.filter(CardTemplate.archetype != None)
         case _:
             query = query.join(Card).order_by(Card.card_price.desc())
             query = query.join(CardTemplate).order_by(UserCard.storage_id, CARD_TYPE_PRIORITY, CardTemplate.name)
@@ -108,6 +109,19 @@ def add_by_name():
     db.session.add(new_card)
     db.session.commit()
     db.session.close()
+
+    return []
+
+
+@bp.route("/add")
+def add():
+    card_id = request.args.get('id')
+    print(f'adding {card_id}')
+
+    user_card = UserCard(card_template_id=int(card_id))
+    db.session.add(user_card)
+    db.session.commit()
+    # db.session.close()
 
     return []
 
@@ -175,5 +189,27 @@ def search_by_name():
     cards_in_user = query.all()
 
     mapped_cards = [map_card(uc) for uc in cards_in_user]
+
+    return mapped_cards
+
+
+@bp.route("/search_template_by_name")
+def search_template_by_name():
+    card_name = request.args.get('name')
+
+    if card_name == '':
+        return []
+
+    print(f'searching for {card_name}')
+
+    query = (
+        db.session
+        .query(CardTemplate).filter(CardTemplate.name.like(f'{card_name}%'))
+        .order_by(CardTemplate.name).limit(10)
+    )
+
+    cards_in_user = query.all()
+    real_cards = [UserCard(card_template_id=template.id) for template in cards_in_user]
+    mapped_cards = [map_card(uc) for uc in real_cards]
 
     return mapped_cards
