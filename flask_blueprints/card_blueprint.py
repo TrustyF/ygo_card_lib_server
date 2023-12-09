@@ -10,6 +10,7 @@ from constants import MAIN_DIR, CARD_TYPE_PRIORITY
 from database.data_mapper import map_card
 from db_loader import db
 from sql_models.card_model import Card, CardTemplate, CardSet, UserCard
+from sqlalchemy import nullsfirst
 
 bp = Blueprint('card', __name__)
 
@@ -55,7 +56,7 @@ def get_all():
 
     match ordering:
         case 'new_first':
-            query = query.order_by(UserCard.updated_at.desc())
+            query = query.order_by(UserCard.created_at.desc(), UserCard.updated_at.desc())
         case 'card_type':
             query = query.join(CardTemplate).order_by(CARD_TYPE_PRIORITY, CardTemplate.name)
         case 'card_archetype':
