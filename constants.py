@@ -1,11 +1,22 @@
 import os
-
 from sqlalchemy import case
-
+from dotenv import load_dotenv
 from sql_models.card_model import CardTemplate
 
 MAIN_DIR = os.path.dirname(os.path.abspath(__file__))
 HASH_SIZE = 14
+
+load_dotenv(os.path.join(MAIN_DIR, '.env'))
+
+DB_USERNAME = os.getenv('MYSQL_DATABASE_USERNAME')
+DB_PASSWORD = os.getenv('MYSQL_DATABASE_PASSWORD')
+DB_NAME = 'TrustyFox$ygo_cards_library'
+
+DATABASE_URI = f'mysql+pymysql://{DB_USERNAME}:{DB_PASSWORD}@TrustyFox.mysql.pythonanywhere-services.com:3306/{DB_NAME}'
+LOCAL_DATABASE_URI = f'mysql+pymysql://root:{DB_PASSWORD}@127.0.0.1:3306/{DB_NAME}'
+
+SMALL_IMAGES_PATH = os.path.join(MAIN_DIR, "assets", "card_images_cached")
+DEV_MODE = os.path.exists(os.path.join(MAIN_DIR, 'devmode.txt'))
 
 # noinspection PyTypeChecker
 CARD_TYPE_PRIORITY = case(

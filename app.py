@@ -6,41 +6,21 @@ from flask import Flask
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from sql_models.card_model import *
-from dotenv import load_dotenv
 
 # from database import db
-from constants import MAIN_DIR
+from constants import MAIN_DIR, LOCAL_DATABASE_URI, DEV_MODE, DATABASE_URI
 from db_loader import db
-
-# check if using locally
-dev_mode = os.path.exists(os.path.join(MAIN_DIR, 'devmode.txt'))
-
-load_dotenv(os.path.join(MAIN_DIR, '.env'))
 
 app = Flask(__name__)
 
-db_username = os.getenv('MYSQL_DATABASE_USERNAME')
-db_password = os.getenv('MYSQL_DATABASE_PASSWORD')
-db_name = 'TrustyFox$ygo_cards_library'
-
-database_uri = f'mysql+pymysql://{db_username}:{db_password}@TrustyFox.mysql.pythonanywhere-services.com:3306/{db_name}'
-local_database_uri = f'mysql+pymysql://root:{db_password}@127.0.0.1:3306/{db_name}'
-
-if dev_mode:
+if DEV_MODE:
     print('using local')
-    app.config["SQLALCHEMY_DATABASE_URI"] = local_database_uri
+    app.config["SQLALCHEMY_DATABASE_URI"] = LOCAL_DATABASE_URI
 else:
     print('using cloud')
-    app.config["SQLALCHEMY_DATABASE_URI"] = database_uri
+    app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URI
 
 CORS(app)
-
-
-@app.route("/check_awake")
-def check_awake():
-    time.sleep(3)
-    return "awake", 200
-
 
 with app.app_context():
     # app.config['SQLALCHEMY_POOL_SIZE'] = 1
