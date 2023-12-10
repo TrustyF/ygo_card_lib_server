@@ -44,12 +44,12 @@ def get_cards():
     # request data
     else:
         response = requests.get('https://db.ygoprodeck.com/api/v7/cardinfo.php?tcgplayer_data=yes')
-        cards_data = response.json()
+        cards_data = response.json()['data']
 
         # save locally
         if DEV_MODE:
             with open(temp_path, 'w') as outfile:
-                json.dump(cards_data['data'], outfile, indent=1)
+                json.dump(cards_data, outfile, indent=1)
 
     return cards_data
 
