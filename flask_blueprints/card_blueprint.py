@@ -1,6 +1,7 @@
 import io
 import json
 import os.path
+import time
 from pprint import pprint
 import requests
 
@@ -57,6 +58,8 @@ def get_all():
     match ordering:
         case 'new_first':
             query = query.order_by(UserCard.created_at.desc(), UserCard.updated_at.desc())
+        case 'updated':
+            query = query.order_by(UserCard.updated_at.desc())
         case 'card_type':
             query = query.join(CardTemplate).order_by(CARD_TYPE_PRIORITY, CardTemplate.name)
         case 'card_archetype':
@@ -116,13 +119,15 @@ def add_by_name():
 
 @bp.route("/add")
 def add():
-    card_id = request.args.get('id')
+    card_id = int(request.args.get('id'))
+    card_storage = int(request.args.get('storage_id'))
+
     print(f'adding {card_id}')
 
-    user_card = UserCard(card_template_id=int(card_id))
+    user_card = UserCard(card_template_id=card_id, storage_id=card_storage)
     db.session.add(user_card)
     db.session.commit()
-    # db.session.close()
+    db.session.close()
 
     return []
 

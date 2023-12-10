@@ -1,4 +1,5 @@
 import os
+import time
 from pprint import pprint
 
 from flask import Flask
@@ -35,9 +36,10 @@ else:
 CORS(app)
 
 
-@app.route("/test")
-def test():
-    return "test", 200
+@app.route("/check_awake")
+def check_awake():
+    time.sleep(3)
+    return "awake", 200
 
 
 with app.app_context():
@@ -49,9 +51,8 @@ with app.app_context():
     # db.drop_all()
     # db.create_all()
 
-    from flask_blueprints import card_detector_blueprint, datasbase_blueprint, card_blueprint, storage_blueprint
+    from flask_blueprints import card_detector_blueprint, datasbase_blueprint, card_blueprint
 
     app.register_blueprint(card_detector_blueprint.bp, url_prefix='/card_detector')
     app.register_blueprint(datasbase_blueprint.bp, url_prefix='/database')
     app.register_blueprint(card_blueprint.bp, url_prefix='/card')
-    app.register_blueprint(storage_blueprint.bp, url_prefix='/storage')
