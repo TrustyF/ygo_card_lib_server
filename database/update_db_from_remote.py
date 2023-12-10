@@ -14,7 +14,9 @@ from db_loader import db
 from sql_models.card_model import *
 
 settings = SettingsHandler('remote_settings.json')
-small_images_path = os.path.join(MAIN_DIR, "assets", "images_small")
+small_images_path = os.path.join(MAIN_DIR, "assets", "card_images_cached")
+
+dev_mode = os.path.exists(os.path.join(MAIN_DIR, 'devmode.txt'))
 
 
 def check_remote_version_current():
@@ -34,14 +36,23 @@ def check_remote_version_current():
 def get_cards():
     print('Requesting all cards')
 
-    response = requests.get('https://db.ygoprodeck.com/api/v7/cardinfo.php?tcgplayer_data=yes')
-    cards_data = response.json()
+    temp_path = f'{MAIN_DIR}/database/cards_temp.json'
 
-    # with open(f'{MAIN_DIR}/database/cards_temp.json', 'w') as outfile:
-    #     json.dump(cards_data['data'], outfile, indent=1)
+    # if local file and dev mode load local file
+    if os.path.exists(temp_path) and dev_mode:
+        print('loading local file')
+        with open(temp_path, 'r') as infile:
+            cards_data = json.load(infile)
 
-    # with open(f'{MAIN_DIR}/database/cards_temp.json', 'r') as infile:
-    #     cards_data = json.load(infile)
+    # request data
+    else:
+        response = requests.get('https://db.ygoprodeck.com/api/v7/cardinfo.php?tcgplayer_data=yes')
+        cards_data = response.json()
+
+        # save locally
+        if dev_mode:
+            with open(temp_path, 'w') as outfile:
+                json.dump(cards_data['data'], outfile, indent=1)
 
     return cards_data
 
@@ -49,14 +60,23 @@ def get_cards():
 def get_ban_list():
     print('Requesting ban list')
 
-    response = requests.get('https://db.ygoprodeck.com/api/v7/cardinfo.php?banlist=tcg')
-    cards_data = response.json()
+    temp_path = f'{MAIN_DIR}/database/ban_temp.json'
 
-    # with open(f'{MAIN_DIR}/database/ban_temp.json', 'w') as outfile:
-    #     json.dump(cards_data['data'], outfile, indent=1)
-    #
-    # with open(f'{MAIN_DIR}/database/ban_temp.json', 'r') as infile:
-    #     cards_data = json.load(infile)
+    # if local file and dev mode load local file
+    if os.path.exists(temp_path) and dev_mode:
+        print('loading local file')
+        with open(temp_path, 'r') as infile:
+            cards_data = json.load(infile)
+
+    # request data
+    else:
+        response = requests.get('https://db.ygoprodeck.com/api/v7/cardinfo.php?banlist=tcg')
+        cards_data = response.json()
+
+        # save locally
+        if dev_mode:
+            with open(temp_path, 'w') as outfile:
+                json.dump(cards_data['data'], outfile, indent=1)
 
     return cards_data
 
@@ -64,14 +84,23 @@ def get_ban_list():
 def get_staple_list():
     print('Requesting staple list')
 
-    response = requests.get('https://db.ygoprodeck.com/api/v7/cardinfo.php?staple=yes')
-    cards_data = response.json()
+    temp_path = f'{MAIN_DIR}/database/staple_temp.json'
 
-    # with open(f'{MAIN_DIR}/database/staple_temp.json', 'w') as outfile:
-    #     json.dump(cards_data['data'], outfile, indent=1)
-    #
-    # with open(f'{MAIN_DIR}/database/staple_temp.json', 'r') as infile:
-    #     cards_data = json.load(infile)
+    # if local file and dev mode load local file
+    if os.path.exists(temp_path) and dev_mode:
+        print('loading local file')
+        with open(temp_path, 'r') as infile:
+            cards_data = json.load(infile)
+
+    # request data
+    else:
+        response = requests.get('https://db.ygoprodeck.com/api/v7/cardinfo.php?staple=yes')
+        cards_data = response.json()
+
+        # save locally
+        if dev_mode:
+            with open(temp_path, 'w') as outfile:
+                json.dump(cards_data['data'], outfile, indent=1)
 
     return cards_data
 
@@ -104,11 +133,12 @@ def map_remote_to_db():
     db.session.commit()
 
     # check all cards and make missing ones
-    db_card_names = [db_name.name for db_name in db.session.query(CardTemplate).all()]
+    db_card_ids = [db_name.card_id for db_name in db.session.query(CardTemplate).all()]
 
     for i, card in enumerate(cards):
         # Check if set already exists else make it
-        if card['name'] in db_card_names:
+        print(card['id'])
+        if card['id'] in db_card_ids:
             continue
 
         if i % 100 == 0:
@@ -135,7 +165,7 @@ def map_remote_to_db():
             name=card['name'],
             card_id=card['id'],
             type=card.get('type', None),
-            desc=card.get('desc', None),
+            desc=card.get('desc', None)[:250],
             race=card.get('race', None),
             archetype=card.get('archetype', None),
             ban_ocg=banned_ocg,
@@ -205,8 +235,8 @@ def hash_images():
 
 
 def run_update():
-    if not check_remote_version_current():
-    # if True:
+    # if not check_remote_version_current():
+    if True:
         map_remote_to_db()
-        download_images()
-        hash_images()
+        # download_images()
+        # hash_images()

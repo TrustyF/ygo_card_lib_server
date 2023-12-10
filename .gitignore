@@ -3,3 +3,4 @@
 /assets/images_small/
 /.env
 /migrate.py
+/assets/card_images_cached/
