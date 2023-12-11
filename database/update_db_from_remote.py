@@ -116,13 +116,8 @@ def map_remote_to_db():
         if card['id'] in db_card_ids:
             continue
 
-        print(card['id'])
-
         if i % 100 == 0:
             print(f'card {i} of {len(cards)}')
-
-        # if i > 50:
-        #     break
 
         # check if card is banned or staple
         banned_ocg = None
@@ -157,43 +152,100 @@ def map_remote_to_db():
     card_sets = [item for sublist in card_sets_raw for item in sublist]
     db_card_sets = [db_set.name for db_set in db.session.query(CardSet).all()]
 
-    # Check if set already exists else make it, also mutual relationships
+    # Check if set already exists else make it
     for card_set in card_sets:
-        if card_set['set_name'] not in db_card_sets:
+        if card_set['set_name'] in db_card_sets:
+            continue
 
-            set_check = db.session.query(CardSet).filter_by(name=card_set['set_name']).one_or_none()
-            if set_check:
+        set_check = db.session.query(CardSet).filter_by(name=card_set['set_name']).one_or_none()
+        if set_check:
+            continue
+
+        print(f'creating {card_set["set_name"]}')
+
+        new_set = CardSet(
+            name=card_set['set_name'],
+            set_code=card_set['set_code'].split('-')[0])
+
+        db.session.add(new_set)
+    db.session.commit()
+
+    # make relationships
+    for i, card in enumerate(cards):
+
+        if 'card_sets' not in card:
+            continue
+
+        if i % 100 == 0:
+            print(f'making card relationship {i} of {len(cards)}')
+
+        card_sets = [cs for cs in card['card_sets']]
+
+        for j, c_set in enumerate(card_sets):
+
+            card_db = db.session.query(CardTemplate).filter_by(card_id=card['id']).one_or_none()
+            set_db = db.session.query(CardSet).filter_by(name=c_set['set_name']).one_or_none()
+
+            # exist check
+            exists = db.session.query(Card).filter_by(
+                card_id=card_db.id,
+                set_id=set_db.id,
+                card_code=c_set['set_code'],
+                card_rarity=c_set['set_rarity'],
+                card_rarity_code=c_set['set_rarity_code'],
+                card_edition=c_set['set_edition'],
+            ).all()
+
+            # update price then skip making
+            if len(exists) == 1:
+                db.session.query(Card).filter_by(id=exists[0].id).update(
+                    {'card_price': c_set['set_price'].replace(',', '')})
                 continue
 
-            print(f'creating {card_set["set_name"]}')
+            # skip if more than one result
+            if len(exists) > 1:
+                # pprint([f'{ex.card_code},{ex.card_edition},{ex.card_rarity},]' for ex in exists])
+                continue
 
-            new_set = CardSet(
-                name=card_set['set_name'],
-                set_code=card_set['set_code'].split('-')[0])
-
-            db.session.add(new_set)
-
-            set_cards = [card for card in cards if 'card_sets' in card if
-                         card_set['set_name'] in [cs['set_name'] for cs in card['card_sets']]]
-            print(len(set_cards))
-
-            # make mutual relationships
-            for card in set_cards:
-                print(card['name'])
-
-                card_db = db.session.query(CardTemplate).filter_by(card_id=card['id']).one_or_none()
-                # Add mutual relationship
-                new_card = Card(
-                    card_id=card_db.id,
-                    set_id=new_set.id,
-                    card_code=card_set['set_code'],
-                    card_rarity=card_set['set_rarity'],
-                    card_rarity_code=card_set['set_rarity_code'],
-                    card_price=card_set['set_price'].replace(',', ''),
-                    card_edition=card_set['set_edition'],
-                )
-                db.session.add(new_card)
+            # Add mutual relationship
+            new_card = Card(
+                card_id=card_db.id,
+                set_id=set_db.id,
+                card_code=c_set['set_code'],
+                card_rarity=c_set['set_rarity'],
+                card_rarity_code=c_set['set_rarity_code'],
+                card_price=c_set['set_price'].replace(',', ''),
+                card_edition=c_set['set_edition'],
+            )
+            db.session.add(new_card)
     db.session.commit()
+
+    # for i, card in enumerate(cards):
+    #
+    #     if 'card_sets' not in card:
+    #         continue
+    #
+    #     if i % 100 == 0:
+    #         print(f'updating card price {i} of {len(cards)}')
+    #
+    #     sets = [cs for cs in card['card_sets']]
+    #     for c_set in sets:
+    #         db_card = db.session.query(CardTemplate).filter_by(card_id=card['id']).one()
+    #         db_set = db.session.query(CardSet).filter_by(name=c_set['set_name']).one()
+    #
+    #         mutual = db.session.query(Card).filter_by(card_id=db_card.id,
+    #                                                   set_id=db_set.id,
+    #                                                   card_code=c_set['set_code'],
+    #                                                   card_rarity=c_set['set_rarity'],
+    #                                                   card_edition=c_set['set_edition']
+    #                                                   ).all()
+    #
+    #         if len(mutual) == 1:
+    #             db.session.query(Card).filter_by(id=mutual[0].id).update(
+    #                 {'card_price': c_set['set_price'].replace(',', '')})
+    #         else:
+    #             print(f'skipped {db_card.name}')
+    #             continue
 
     db.session.close()
 
@@ -239,7 +291,8 @@ def hash_images():
 
 
 def run_update():
-    if not check_remote_version_current():
+    # if not check_remote_version_current():
+    if True:
         map_remote_to_db()
         # download_images()
         # hash_images()

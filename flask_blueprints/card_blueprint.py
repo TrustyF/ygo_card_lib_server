@@ -17,15 +17,16 @@ bp = Blueprint('card', __name__)
 
 
 def search_card_by_name(f_name):
-    find_card = db.session.query(CardTemplate).filter(CardTemplate.name.like(f'{f_name}')).all()
+    print('search by name')
+    find_card = db.session.query(CardTemplate).filter(CardTemplate.name.like(f'{f_name}'))
 
     # expand search
-    if len(find_card) < 1:
-        find_card = db.session.query(CardTemplate).filter(CardTemplate.name.like(f'%{f_name}%')).all()
+    if len(find_card.all()) < 1:
+        print('expanding search most')
+        find_card = db.session.query(CardTemplate).filter(CardTemplate.name.like(f'%{f_name}%'))
 
-    if len(find_card) < 1:
+    if len(find_card.all()) < 1:
         print(f'{f_name} not found')
-        return []
 
     return find_card
 
@@ -106,7 +107,7 @@ def add_by_name():
     card_name = request.args.get('name')
     print(f'searching for {card_name}')
 
-    found_cards = search_card_by_name(card_name)
+    found_cards = search_card_by_name(card_name).all()
 
     new_card = UserCard(card_template_id=found_cards[0].id)
 
@@ -177,7 +178,7 @@ def search_by_name():
     print(f'searching for {card_name}')
     print(f'{storage =}')
 
-    found_cards = search_card_by_name(card_name)
+    found_cards = search_card_by_name(card_name).all()
     found_cards_ids = [x.id for x in found_cards]
 
     query = (
@@ -208,14 +209,9 @@ def search_template_by_name():
 
     print(f'searching for {card_name}')
 
-    query = (
-        db.session
-        .query(CardTemplate).filter(CardTemplate.name.like(f'{card_name}%'))
-        .order_by(CardTemplate.name).limit(10)
-    )
+    found_cards = search_card_by_name(card_name).all()
 
-    cards_in_user = query.all()
-    real_cards = [UserCard(card_template_id=template.id) for template in cards_in_user]
+    real_cards = [UserCard(card_template_id=template.id) for template in found_cards]
     mapped_cards = [map_card(uc) for uc in real_cards]
 
     return mapped_cards
