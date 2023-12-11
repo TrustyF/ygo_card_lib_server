@@ -43,6 +43,7 @@ def map_card(uc):
 
         'is_in_use': uc.is_in_use,
         'is_deleted': uc.is_deleted,
+        'is_sold': uc.is_sold,
 
         'sets': [{
             'set_id': cs.set_id,

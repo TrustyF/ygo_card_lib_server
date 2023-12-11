@@ -95,6 +95,7 @@ class UserCard(TimeStampedModel):
 
     is_deleted: bool = db.Column(db.Boolean, default=False)
     is_in_use: bool = db.Column(db.Boolean, default=False)
+    is_sold: bool = db.Column(db.Boolean, default=False)
 
     card = db.relationship("Card", back_populates="users", passive_deletes=True)
     card_template = db.relationship("CardTemplate", back_populates="users", passive_deletes=True)

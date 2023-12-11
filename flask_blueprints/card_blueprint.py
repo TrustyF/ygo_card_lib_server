@@ -139,10 +139,23 @@ def delete():
     print(f'deleting {card_id}')
 
     db.session.query(UserCard).filter(UserCard.id == card_id).update({'is_deleted': 1})
-    # db.session.update(UserCard).where(UserCard.id == card_id).values(is_deleted=1)
-    # db.session.query(UserCard).filter_by(id=card_id).delete()
     db.session.commit()
     db.session.close()
+
+    return []
+
+
+@bp.route("/mark_sold")
+def mark_sold():
+    card_id = request.args.get('id')
+    value = int(request.args.get('value'))
+    print(f'set sold {card_id} to {value}')
+
+    db.session.query(UserCard).filter_by(card_id=card_id).update({'is_sold': value})
+    db.session.commit()
+    db.session.close()
+
+    print(db.session.query(UserCard).filter_by(card_id=card_id).one())
 
     return []
 
