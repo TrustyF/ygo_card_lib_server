@@ -14,4 +14,4 @@ bp = Blueprint('database', __name__)
 @bp.route("/update_from_remote", methods=["GET"])
 def update_from_remote():
     run_update()
-    return []
+    return 'finished updating', 200

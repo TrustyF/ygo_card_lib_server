@@ -220,33 +220,6 @@ def map_remote_to_db():
             db.session.add(new_card)
     db.session.commit()
 
-    # for i, card in enumerate(cards):
-    #
-    #     if 'card_sets' not in card:
-    #         continue
-    #
-    #     if i % 100 == 0:
-    #         print(f'updating card price {i} of {len(cards)}')
-    #
-    #     sets = [cs for cs in card['card_sets']]
-    #     for c_set in sets:
-    #         db_card = db.session.query(CardTemplate).filter_by(card_id=card['id']).one()
-    #         db_set = db.session.query(CardSet).filter_by(name=c_set['set_name']).one()
-    #
-    #         mutual = db.session.query(Card).filter_by(card_id=db_card.id,
-    #                                                   set_id=db_set.id,
-    #                                                   card_code=c_set['set_code'],
-    #                                                   card_rarity=c_set['set_rarity'],
-    #                                                   card_edition=c_set['set_edition']
-    #                                                   ).all()
-    #
-    #         if len(mutual) == 1:
-    #             db.session.query(Card).filter_by(id=mutual[0].id).update(
-    #                 {'card_price': c_set['set_price'].replace(',', '')})
-    #         else:
-    #             print(f'skipped {db_card.name}')
-    #             continue
-
     db.session.close()
 
 
