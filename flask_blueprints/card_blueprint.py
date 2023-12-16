@@ -94,7 +94,7 @@ def get_image():
     file_path = os.path.join(MAIN_DIR, "assets", "card_images_cached", f"{card_id}.jpg")
 
     if not os.path.exists(file_path):
-        response = requests.get(f'https://images.ygoprodeck.com/images/cards_small/{card_id}.jpg')
+        response = requests.get(f'https://images.ygoprodeck.com/images/cards/{card_id}.jpg')
 
         with open(file_path, 'wb') as outfile:
             outfile.write(response.content)
@@ -216,13 +216,14 @@ def search_by_name():
 @bp.route("/search_template_by_name")
 def search_template_by_name():
     card_name = request.args.get('name')
+    limit = int(request.args.get('limit'))
 
     if card_name == '':
         return []
 
     print(f'searching for {card_name}')
 
-    found_cards = search_card_by_name(card_name).all()
+    found_cards = search_card_by_name(card_name).limit(limit).all()
 
     real_cards = [UserCard(card_template_id=template.id) for template in found_cards]
     mapped_cards = [map_card(uc) for uc in real_cards]
