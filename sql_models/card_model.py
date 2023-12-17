@@ -101,5 +101,5 @@ class UserCard(TimeStampedModel):
     card_template = db.relationship("CardTemplate", back_populates="users", passive_deletes=True)
     card_storage = db.relationship("CardStorage", back_populates="cards", passive_deletes=True)
 
-    def __repr__(self):
-        return f" {self.id}-{self.__class__.__name__},card: {self.card}, {self.card_storage}"
+    # def __repr__(self):
+    #     return f" {self.id}-{self.__class__.__name__},card: {self.card}, {self.card_storage}"

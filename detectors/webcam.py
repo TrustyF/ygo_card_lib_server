@@ -6,7 +6,8 @@ class Webcam:
         self.video = None
 
     def __del__(self):
-        self.video.release()
+        if self.video is not None:
+            self.video.release()
 
     def start_webcam(self):
         self.video = cv2.VideoCapture(0)
