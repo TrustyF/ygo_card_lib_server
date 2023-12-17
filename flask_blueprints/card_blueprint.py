@@ -14,13 +14,10 @@ from sql_models.card_model import Card, CardTemplate, CardSet, UserCard
 from sqlalchemy import nullsfirst
 import logging
 
-log = logging.getLogger('werkzeug')
-log.setLevel(logging.ERROR)
-
 bp = Blueprint('card', __name__)
 
 
-@bp.route("/get")
+@bp.route("/get", methods=['GET'])
 def get_card():
     card_id = request.args.get('id', type=int)
     search_text = request.args.get('search')
@@ -71,12 +68,10 @@ def get_card():
     user_cards = query.all()
     mapped_cards = [map_card(uc) for uc in user_cards]
 
-    print(len(mapped_cards))
-
-    return mapped_cards
+    return mapped_cards, 200
 
 
-@bp.route("/get_template")
+@bp.route("/get_template", methods=['GET'])
 def get_template():
     template_id = request.args.get('id', type=int)
     search_text = request.args.get('search')
@@ -108,10 +103,10 @@ def get_template():
     real_cards = [UserCard(card_template_id=template.id) for template in card_templates]
     mapped_cards = [map_card(uc) for uc in real_cards]
 
-    return mapped_cards
+    return mapped_cards, 200
 
 
-@bp.route("/get_image")
+@bp.route("/get_image", methods=['GET'])
 def get_image():
     card_id = request.args.get('id')
     file_path = os.path.join(MAIN_DIR, "assets", "card_images_cached", f"{card_id}.jpg")
@@ -122,27 +117,11 @@ def get_image():
         with open(file_path, 'wb') as outfile:
             outfile.write(response.content)
 
-    return send_file(file_path, mimetype='image/jpg')
-
-
-# @bp.route("/add_by_name")
-# def add_by_name():
-#     card_name = request.args.get('name')
-#     print(f'searching for {card_name}')
-#
-#     found_cards = search_card_by_name(card_name).all()
-#
-#     new_card = UserCard(card_template_id=found_cards[0].id)
-#
-#     db.session.add(new_card)
-#     db.session.commit()
-#     db.session.close()
-#
-#     return []
+    return send_file(file_path, mimetype='image/jpg'), 200
 
 
 @bp.route("/add")
-def add():
+def add_card():
     card_id = int(request.args.get('id'))
     card_storage = int(request.args.get('storage_id'))
 
@@ -153,11 +132,11 @@ def add():
     db.session.commit()
     db.session.close()
 
-    return []
+    return 'ok', 200
 
 
 @bp.route("/delete")
-def delete():
+def delete_card():
     card_id = request.args.get('id')
     print(f'deleting {card_id}')
 
@@ -165,39 +144,40 @@ def delete():
     db.session.commit()
     db.session.close()
 
-    return []
+    return 'ok', 200
 
 
-@bp.route("/mark_sold")
-def mark_sold():
-    card_id = request.args.get('id')
-    value = int(request.args.get('value'))
-    print(f'set sold {card_id} to {value}')
+@bp.route("/i_update")
+def update_card_int():
+    card_id = request.args.get('id', type=int)
+    attrib = request.args.get('attrib')
+    value = request.args.get('value', type=int)
 
-    db.session.query(UserCard).filter_by(card_id=card_id).update({'is_sold': value})
+    if value == 'null':
+        value = None
+
+    print(f'i_updating {card_id=} {value=} {attrib=}')
+
+    db.session.query(UserCard).filter_by(id=card_id).update({attrib: value})
     db.session.commit()
     db.session.close()
 
-    print(db.session.query(UserCard).filter_by(card_id=card_id).one())
-
-    return []
+    return 'ok', 200
 
 
-@bp.route("/set_card_attrib")
-def set_card_attrib():
-    user_card_id = request.args.get('user_card_id')
-    attr_name = request.args.get('attr_name')
-    attribute = request.args.get('attribute')
+@bp.route("/s_update")
+def update_card_string():
+    card_id = request.args.get('id', type=int)
+    attrib = request.args.get('attrib')
+    value = request.args.get('value', type=str)
 
-    print(f'updating card {attr_name} of card {user_card_id} to {attribute}')
+    if value == 'null':
+        value = None
 
-    if attribute == 'null':
-        print('is null')
-        db.session.query(UserCard).filter_by(id=user_card_id).update({str(attr_name): None})
-    else:
-        db.session.query(UserCard).filter_by(id=user_card_id).update({str(attr_name): attribute})
+    print(f's_updating {card_id=} {value=} {attrib=}')
 
+    db.session.query(UserCard).filter_by(id=card_id).update({attrib: value})
     db.session.commit()
     db.session.close()
 
-    return []
+    return 'ok', 200

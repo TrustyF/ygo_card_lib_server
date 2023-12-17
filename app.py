@@ -14,10 +14,10 @@ from db_loader import db
 app = Flask(__name__)
 
 if DEV_MODE:
-    print('using local')
+    # print('using local')
     app.config["SQLALCHEMY_DATABASE_URI"] = LOCAL_DATABASE_URI
 else:
-    print('using cloud')
+    # print('using cloud')
     app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URI
 
 CORS(app)
