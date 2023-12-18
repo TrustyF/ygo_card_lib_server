@@ -181,3 +181,17 @@ def update_card_string():
     db.session.close()
 
     return 'ok', 200
+
+
+@bp.route("/get_real_card")
+def get_real_card():
+    code_card_id = request.args.get('id', type=int)
+
+    print(f'making real {code_card_id=}')
+
+    card = db.session.query(Card).filter_by(id=code_card_id).one()
+    real_card = UserCard(card_id=code_card_id, card_template_id=card.card_template.id)
+
+    mapped_cards = map_card(real_card)
+
+    return mapped_cards, 200
