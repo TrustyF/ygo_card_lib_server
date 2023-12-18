@@ -122,12 +122,13 @@ def get_image():
 
 @bp.route("/add")
 def add_card():
-    card_id = int(request.args.get('id'))
-    card_storage = int(request.args.get('storage_id'))
+    card_id = request.args.get('id', type=int)
+    card_code_id = request.args.get('code_id', type=int)
+    card_storage = request.args.get('storage_id', type=int)
 
     print(f'adding {card_id}')
 
-    user_card = UserCard(card_template_id=card_id, storage_id=card_storage)
+    user_card = UserCard(card_template_id=card_id, card_id=card_code_id, storage_id=card_storage)
     db.session.add(user_card)
     db.session.commit()
     db.session.close()
@@ -157,7 +158,6 @@ def update_card_int():
         value = None
 
     print(f'i_updating {card_id=} {value=} {attrib=}')
-
     db.session.query(UserCard).filter_by(id=card_id).update({attrib: value})
     db.session.commit()
     db.session.close()
