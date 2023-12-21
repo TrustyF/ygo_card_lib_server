@@ -32,8 +32,8 @@ def get_card():
     query = (
         db.session
         .query(UserCard).filter(UserCard.is_deleted == 0)
-        .join(CardTemplate, CardTemplate.id == UserCard.card_template_id)
-        .join(Card, Card.id == UserCard.card_id)
+        .outerjoin(CardTemplate, CardTemplate.id == UserCard.card_template_id)
+        .outerjoin(Card, Card.id == UserCard.card_id)
     )
 
     if card_id is not None:
@@ -52,7 +52,7 @@ def get_card():
         case 'price':
             query = query.order_by(Card.card_price.desc())
         case 'staple':
-            query = query.filter(CardTemplate.is_staple == 1).order_by(CARD_TYPE_PRIORITY,CardTemplate.name)
+            query = query.filter(CardTemplate.is_staple == 1).order_by(CARD_TYPE_PRIORITY, CardTemplate.name)
 
     if storage is not None:
         query = query.filter(UserCard.storage_id == storage)
@@ -128,7 +128,7 @@ def add_card():
     card_code_id = request.args.get('code_id', type=int)
     card_storage = request.args.get('storage_id', type=int)
 
-    print(f'adding {card_id}')
+    print(f'adding {card_id=} {card_code_id=} {card_storage=}')
 
     user_card = UserCard(card_template_id=card_id, card_id=card_code_id, storage_id=card_storage)
     db.session.add(user_card)
