@@ -24,9 +24,11 @@ def get_card():
     card_limit = request.args.get('card_limit', type=int)
     card_page = request.args.get('card_page', type=int)
     ordering = request.args.get('ordering')
+    filtering = request.args.get('filter')
     storage = request.args.get('storage', type=int)
 
-    print(f'{card_id =}', f'{search_text =}', f'{card_limit =}', f'{ordering =}', f'{card_page =}', f'{storage =}')
+    print(f'{card_id =}', f'{search_text =}', f'{card_limit =}', f'{ordering =}', f'{filtering=}', f'{card_page =}',
+          f'{storage =}')
 
     # base query
     query = (
@@ -51,11 +53,14 @@ def get_card():
             query = query.order_by(UserCard.updated_at.desc())
         case 'price':
             query = query.order_by(Card.card_price.desc())
-        case 'staple':
-            query = query.filter(CardTemplate.is_staple == 1).order_by(CARD_TYPE_PRIORITY, CardTemplate.name)
         case 'priority':
-            query = query.order_by(CARD_TYPE_PRIORITY)
-            query = query.order_by(Card.card_price.desc())
+            query = query.order_by(CARD_TYPE_PRIORITY, Card.card_price.desc())
+
+    match filtering:
+        case 'staple':
+            query = query.filter(CardTemplate.is_staple == 1)
+        case 'expensive':
+            query = query.filter(Card.card_price >= 0.74)
 
     if storage is not None:
         query = query.filter(UserCard.storage_id == storage)
