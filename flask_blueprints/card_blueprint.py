@@ -53,6 +53,9 @@ def get_card():
             query = query.order_by(Card.card_price.desc())
         case 'staple':
             query = query.filter(CardTemplate.is_staple == 1).order_by(CARD_TYPE_PRIORITY, CardTemplate.name)
+        case 'priority':
+            query = query.order_by(CARD_TYPE_PRIORITY)
+            query = query.order_by(Card.card_price.desc())
 
     if storage is not None:
         query = query.filter(UserCard.storage_id == storage)
