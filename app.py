@@ -16,7 +16,6 @@ with app.app_context():
     # db.drop_all()
     db.create_all()
 
-    from flask_blueprints import datasbase_blueprint, card_blueprint
+    from flask_blueprints import card_blueprint
 
-    app.register_blueprint(datasbase_blueprint.bp, url_prefix='/database')
     app.register_blueprint(card_blueprint.bp, url_prefix='/card')
