@@ -1,12 +1,9 @@
 import os
 from sqlalchemy import case
-from dotenv import load_dotenv
 from sql_models.card_model import CardTemplate
 
 MAIN_DIR = os.path.dirname(os.path.abspath(__file__))
 HASH_SIZE = 14
-
-load_dotenv(os.path.join(MAIN_DIR, '.env'))
 
 DB_HOST = "db"
 DB_USER = "user"
