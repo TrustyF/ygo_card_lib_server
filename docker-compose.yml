@@ -3,6 +3,8 @@ services:
     build: ./ygo_card_lib_server
     container_name: ygo_flask
     restart: always
+    volumes:
+      - ./ygo_card_lib_server/assets/card_images_cached:/app/assets/card_images_cached
     environment:
       DATABASE_HOST: db
       DATABASE_USER: user
