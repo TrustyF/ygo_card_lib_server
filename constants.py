@@ -8,7 +8,7 @@ HASH_SIZE = 14
 DB_HOST = "db"
 DB_USER = "user"
 DB_PASSWORD = "password"
-DB_NAME = "mydb"
+DB_NAME = "ygo_cards_db"
 
 LOCAL_DATABASE_URI = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:3306/{DB_NAME}"
 
